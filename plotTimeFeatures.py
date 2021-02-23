@@ -79,13 +79,13 @@ def featuresAsDataframe(data):
         # featuresDict = 
         val_rms = np.sqrt(np.mean(data[i]['data']**2))
         val_kurtosis = spstats.kurtosis(np.abs(data[i]['data']))
-        # new_row = np.array([[elem_rms, elem_kurtosis]])
-        featuresDF = featuresDF.append({'Datetime': 23, 'RMS': val_rms, 'Kurtosis': val_kurtosis},\
+        # save the calculated features in dataframe. Get datetime at id3 in data
+        featuresDF = featuresDF.append({'Datetime': data[i]['id3'], 'RMS': val_rms, 'Kurtosis': val_kurtosis},\
             ignore_index=True)
     
     return featuresDF
 
-def saveToCSV(filename, data, featureMatrix):
+def saveDataFrameToCSV(filename, df):
     pass
 
 if __name__ == '__main__':
