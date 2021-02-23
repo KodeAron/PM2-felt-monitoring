@@ -7,6 +7,7 @@ name = "pypi"
 pyuff = "*"
 numpy = "*"
 matplotlib = "*"
+scipy = "*"
 
 [dev-packages]
 
