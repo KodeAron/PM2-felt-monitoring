@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import pyuff
 import csv # no installation needed?
 import scipy.stats as spstats
+import pandas as pd
 
 def main():
     # sensorPosition = 'P001F'
@@ -12,23 +13,13 @@ def main():
     # features_array = features(data)
     # # plotFeatures(features_array)
 
-    csv_columns = ['No','Name','Country']
-    dict_data = [
-    {'No': 1, 'Name': 'Alex', 'Country': 'India'},
-    {'No': 2, 'Name': 'Ben', 'Country': 'USA'},
-    {'No': 3, 'Name': 'Shri Ram', 'Country': 'India'},
-    {'No': 4, 'Name': 'Smith', 'Country': 'USA'},
-    {'No': 5, 'Name': 'Yuva Raj', 'Country': 'India'},
-    ]
-    csv_file = "Names.csv"
-    try:
-        with open(csv_file, 'w') as csvfile:
-            writer = csv.DictWriter(csvfile, fieldnames=csv_columns)
-            writer.writeheader()
-            for data in dict_data:
-                writer.writerow(data)
-    except IOError:
-        print("I/O error")
+    data = {'First Column Name':  ['First value', 'Second value',...],
+        'Second Column Name': ['First value', 'Second value',...]
+        }
+
+    df = pd.DataFrame (data, columns = ['First Column Name','Second Column Name'])
+
+    print (df)
 
     ### test stuff
     # arr = np.array([[1,2,3,4,5],[6,7,8,9,10]])
@@ -78,6 +69,23 @@ def features(data):
         # featuresMatrix = np.concatenate((featuresMatrix,new_row), axis=0)
     
     return featuresMatrix
+
+def featuresDataframe(data):
+    # rms, kurtosis
+    featuresList = list()
+
+    for i in range(len(data)):
+        pass
+        # featuresDict = 
+        # elem_rms = np.sqrt(np.mean(data[i]['data']**2))
+        # elem_kurtosis = spstats.kurtosis(np.abs(data[i]['data']))
+        # new_row = np.array([[elem_rms, elem_kurtosis]])
+        # featuresMatrix[i] = new_row
+
+        ## add rows in end of matrix
+        # featuresMatrix = np.concatenate((featuresMatrix,new_row), axis=0)
+    
+    return featuresDataframe
 
 def saveToCSV(filename, data, featureMatrix):
     pass

@@ -8,6 +8,7 @@ pyuff = "*"
 numpy = "*"
 matplotlib = "*"
 scipy = "*"
+pandas = "*"
 
 [dev-packages]
 
