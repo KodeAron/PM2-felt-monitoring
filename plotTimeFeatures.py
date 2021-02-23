@@ -6,20 +6,14 @@ import scipy.stats as spstats
 import pandas as pd
 
 def main():
-    # sensorPosition = 'P001F'
-    # timePeriod = '201027-210221'
-    # data = readUFF('../' + sensorPosition + '_A_' + timePeriod + '.uff')
+    sensorPosition = 'P001F'
+    timePeriod = '201027-210221'
+    data = readUFF('../' + sensorPosition + '_A_' + timePeriod + '.uff')
+    print(data[0])
     # # plotSignal(data, 4)
-    # features_array = features(data)
-    # # plotFeatures(features_array)
-
-    data = {'First Column Name':  ['First value', 'Second value',...],
-        'Second Column Name': ['First value', 'Second value',...]
-        }
-
-    df = pd.DataFrame (data, columns = ['First Column Name','Second Column Name'])
-
-    print (df)
+    featuresDF = featuresAsDataframe(data)
+    print(featuresDF)
+    plotFeatures(featuresDF)
 
     ### test stuff
     # arr = np.array([[1,2,3,4,5],[6,7,8,9,10]])
@@ -50,12 +44,18 @@ def plotSignal(data, index):
     plt.show()
 
 def plotFeatures(features):
-    plt.plot(features[:,0],'b-', label="rms")
-    plt.plot(features[:,1],'r-', label="kurtosis")
-    # plt.plot(range(len(features)),)
-    plt.show()
+    if type(features) is np.array:
+        plt.plot(features[:,0],'b-', label="rms")
+        plt.plot(features[:,1],'r-', label="kurtosis")
+        plt.show()
+    elif type(features) is pd.DataFrame:
+        plt.plot(features.RMS,'b-', label="RMS")
+        plt.plot(features.Kurtosis,'r-', label="kurtosis")
+        plt.show()
+    else:
+        print('Unknown format for features')
 
-def features(data):
+def featuresAsMatrix(data):
     # rms, kurtosis
     featuresMatrix = np.empty([len(data),2], dtype=float)
 
@@ -70,22 +70,20 @@ def features(data):
     
     return featuresMatrix
 
-def featuresDataframe(data):
+def featuresAsDataframe(data):
     # rms, kurtosis
-    featuresList = list()
+    featuresDF = pd.DataFrame(columns=['Datetime', 'RMS', 'Kurtosis'])
 
     for i in range(len(data)):
         pass
         # featuresDict = 
-        # elem_rms = np.sqrt(np.mean(data[i]['data']**2))
-        # elem_kurtosis = spstats.kurtosis(np.abs(data[i]['data']))
+        val_rms = np.sqrt(np.mean(data[i]['data']**2))
+        val_kurtosis = spstats.kurtosis(np.abs(data[i]['data']))
         # new_row = np.array([[elem_rms, elem_kurtosis]])
-        # featuresMatrix[i] = new_row
-
-        ## add rows in end of matrix
-        # featuresMatrix = np.concatenate((featuresMatrix,new_row), axis=0)
+        featuresDF = featuresDF.append({'Datetime': 23, 'RMS': val_rms, 'Kurtosis': val_kurtosis},\
+            ignore_index=True)
     
-    return featuresDataframe
+    return featuresDF
 
 def saveToCSV(filename, data, featureMatrix):
     pass
