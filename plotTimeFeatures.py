@@ -8,12 +8,11 @@ import pandas as pd
 def main():
     sensorPosition = 'P001F'
     timePeriod = '201027-210221'
-    data = readUFF('../' + sensorPosition + '_A_' + timePeriod + '.uff')
-    print(data[0])
+    dataUFF_to_featuresCSV(sensorPosition, timePeriod)
+    # print(data[0])
     # # plotSignal(data, 4)
-    featuresDF = featuresAsDataframe(data)
-    print(featuresDF)
-    plotFeatures(featuresDF)
+    # print(featuresDF.loc[4])
+    # plotFeatures(featuresDF)
 
     ### test stuff
     # arr = np.array([[1,2,3,4,5],[6,7,8,9,10]])
@@ -26,6 +25,11 @@ def main():
     # print(spstats.kurtosis(np.abs(data[0]['data'])))
     # print('length',len(data))
 
+def dataUFF_to_featuresCSV(sensorPosition, timePeriod):
+    data = readUFF('../' + sensorPosition + '_A_' + timePeriod + '.uff')
+    featuresDF = featuresAsDataframe(data)
+    csvfilename = '../featuresPerPosition/' + sensorPosition + '_' + timePeriod + '.csv'
+    featuresDF.to_csv(csvfilename)
 
 def readUFF(filename):
     uff_file = pyuff.UFF('../P001F_A_201027-210221.uff') # Tidssignaler_t.o.m._210221/
@@ -87,8 +91,6 @@ def featuresAsDataframe(data):
     featuresDF['Datetime'] = pd.to_datetime(featuresDF['Datetime'], format='%d-%m-%Y %H:%M:%S')
     return featuresDF
 
-def saveDataFrameToCSV(filename, df):
-    pass
 
 if __name__ == '__main__':
     main()
