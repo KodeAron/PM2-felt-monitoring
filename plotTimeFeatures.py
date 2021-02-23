@@ -49,6 +49,7 @@ def plotFeatures(features):
         plt.plot(features[:,1],'r-', label="kurtosis")
         plt.show()
     elif type(features) is pd.DataFrame:
+        # plt.plot(features.Datetime.to_pydatetime(),features.RMS,'b-', label="RMS")
         plt.plot(features.RMS,'b-', label="RMS")
         plt.plot(features.Kurtosis,'r-', label="kurtosis")
         plt.show()
@@ -82,7 +83,8 @@ def featuresAsDataframe(data):
         # save the calculated features in dataframe. Get datetime at id3 in data
         featuresDF = featuresDF.append({'Datetime': data[i]['id3'], 'RMS': val_rms, 'Kurtosis': val_kurtosis},\
             ignore_index=True)
-    
+
+    featuresDF['Datetime'] = pd.to_datetime(featuresDF['Datetime'], format='%d-%m-%Y %H:%M:%S')
     return featuresDF
 
 def saveDataFrameToCSV(filename, df):
