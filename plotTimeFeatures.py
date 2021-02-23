@@ -5,13 +5,30 @@ import csv # no installation needed?
 import scipy.stats as spstats
 
 def main():
-    # position = 'P001F'
+    # sensorPosition = 'P001F'
+    # timePeriod = '201027-210221'
+    # data = readUFF('../' + sensorPosition + '_A_' + timePeriod + '.uff')
+    # # plotSignal(data, 4)
+    # features_array = features(data)
+    # # plotFeatures(features_array)
 
-    data = readUFF('../P001F_A_201027-210221.uff')
-    # plotSignal(data, 4)
-    features_array = features(data)
-    plotFeatures(features_array)
-    # print(features_array)
+    csv_columns = ['No','Name','Country']
+    dict_data = [
+    {'No': 1, 'Name': 'Alex', 'Country': 'India'},
+    {'No': 2, 'Name': 'Ben', 'Country': 'USA'},
+    {'No': 3, 'Name': 'Shri Ram', 'Country': 'India'},
+    {'No': 4, 'Name': 'Smith', 'Country': 'USA'},
+    {'No': 5, 'Name': 'Yuva Raj', 'Country': 'India'},
+    ]
+    csv_file = "Names.csv"
+    try:
+        with open(csv_file, 'w') as csvfile:
+            writer = csv.DictWriter(csvfile, fieldnames=csv_columns)
+            writer.writeheader()
+            for data in dict_data:
+                writer.writerow(data)
+    except IOError:
+        print("I/O error")
 
     ### test stuff
     # arr = np.array([[1,2,3,4,5],[6,7,8,9,10]])
@@ -62,7 +79,7 @@ def features(data):
     
     return featuresMatrix
 
-def saveToCSV(filename, data):
+def saveToCSV(filename, data, featureMatrix):
     pass
 
 if __name__ == '__main__':
