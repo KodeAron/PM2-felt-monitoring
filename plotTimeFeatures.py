@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
 import pyuff
 import csv # no installation needed?
 import scipy.stats as spstats
@@ -8,11 +9,12 @@ import pandas as pd
 def main():
     sensorPosition = 'P001F'
     timePeriod = '201027-210221'
-    dataUFF_to_featuresCSV(sensorPosition, timePeriod)
+    # dataUFF_to_featuresCSV(sensorPosition, timePeriod)
+    featuresDF = dataUFF_to_featuresDF(sensorPosition, timePeriod)
     # print(data[0])
     # # plotSignal(data, 4)
     # print(featuresDF.loc[4])
-    # plotFeatures(featuresDF)
+    plotFeatures(featuresDF)
 
     ### test stuff
     # arr = np.array([[1,2,3,4,5],[6,7,8,9,10]])
@@ -26,10 +28,14 @@ def main():
     # print('length',len(data))
 
 def dataUFF_to_featuresCSV(sensorPosition, timePeriod):
-    data = readUFF('../' + sensorPosition + '_A_' + timePeriod + '.uff')
-    featuresDF = featuresAsDataframe(data)
+    featuresDF = dataUFF_to_featuresDF(sensorPosition, timePeriod)
     csvfilename = '../featuresPerPosition/' + sensorPosition + '_' + timePeriod + '.csv'
     featuresDF.to_csv(csvfilename)
+
+def dataUFF_to_featuresDF(sensorPosition, timePeriod):
+    data = readUFF('../' + sensorPosition + '_A_' + timePeriod + '.uff')
+    featuresDF = featuresAsDataframe(data)
+    return featuresDF
 
 def readUFF(filename):
     uff_file = pyuff.UFF('../P001F_A_201027-210221.uff') # Tidssignaler_t.o.m._210221/
@@ -54,8 +60,10 @@ def plotFeatures(features):
         plt.show()
     elif type(features) is pd.DataFrame:
         # plt.plot(features.Datetime.to_pydatetime(),features.RMS,'b-', label="RMS")
-        plt.plot(features.RMS,'b-', label="RMS")
-        plt.plot(features.Kurtosis,'r-', label="kurtosis")
+        plt.plot(features.Datetime, features.RMS,'b-', label="RMS")
+        plt.plot(features.Datetime, features.Kurtosis,'r-', label="kurtosis")
+        myFmt = mdates.DateFormatter('%d/%m') # select format of datetime
+        plt.gca().xaxis.set_major_formatter(myFmt)
         plt.show()
     else:
         print('Unknown format for features')
