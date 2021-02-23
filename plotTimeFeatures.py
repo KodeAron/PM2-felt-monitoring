@@ -5,10 +5,12 @@ import csv # no installation needed?
 import scipy.stats as spstats
 
 def main():
+    # position = 'P001F'
+
     data = readUFF('../P001F_A_201027-210221.uff')
     # plotSignal(data, 4)
     features_array = features(data)
-
+    plotFeatures(features_array)
     # print(features_array)
 
     ### test stuff
@@ -37,6 +39,12 @@ def plotSignal(data, index):
     plt.xlabel('Time [s]')
     plt.ylabel('Acceleration [g]')
     # plt.xlim([0,10])
+    plt.show()
+
+def plotFeatures(features):
+    plt.plot(features[:,0],'b-', label="rms")
+    plt.plot(features[:,1],'r-', label="kurtosis")
+    # plt.plot(range(len(features)),)
     plt.show()
 
 def features(data):
