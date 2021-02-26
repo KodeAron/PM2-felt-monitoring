@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*- python3
 """ Felt data reader
 
 Created on Feb 25 2021 11:30

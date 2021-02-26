@@ -1,3 +1,11 @@
+# -*- coding: utf-8 -*- python3
+""" Accelerometer data reader
+
+Read acceleration data in UFF format. Return dataframe or matrix. Save to csv.
+
+Created on Feb 25 2021 11:30
+@author: Aron, Luleå University of Technology
+"""
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
