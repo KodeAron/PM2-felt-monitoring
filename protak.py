@@ -7,11 +7,13 @@ Created on Feb 25 2021 10:10
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import pandas as pd
+import numpy as np
 
 def main():
     filename = '../data_protak/ProTAK PM2 Pressektion 201001-210228.xlsx'
     df = readData()
-    print(df[df.REASONDESCRIPTION=='Trimproblem'])
+    # print(df[df.REASONDESCRIPTION=='Trimproblem'])
+    booleanDatePlot(df)
 
 
 def readData(filename='../data_protak/ProTAK PM2 Pressektion 201001-210228.xlsx',
@@ -30,13 +32,17 @@ def readData(filename='../data_protak/ProTAK PM2 Pressektion 201001-210228.xlsx'
     return df_trim
     
 def booleanDatePlot(dataframe):
-    df_trim= df.set_index(['REASONDESCRIPTION'],\
-        drop=True).loc['Trimproblem'].copy() 
+    # df_trim= dataframe.set_index(['REASONDESCRIPTION'],\
+    #     drop=True).loc['Trimproblem'].copy() 
+    plt.plot(dataframe.STARTDATE, np.ones(len(dataframe.STARTDATE)),'*', label="kurtosis")
+    myFmt = mdates.DateFormatter('%d/%m %H:%M') # select format of datetime
+    plt.gca().xaxis.set_major_formatter(myFmt)
+    plt.show()
 
 # def plotData(dataframe):
 #     pass
 
-def checkDatetimeForProblem(dataframe,datetime)
+def checkDatetimeForProblem(dataframe,datetime):
     # check if specific point in time had any problem
     # return boolean value and REASONDESCRIPTION
 
