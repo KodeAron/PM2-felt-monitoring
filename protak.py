@@ -16,8 +16,12 @@ def main():
 
 def readData(filename='../data_protak/ProTAK PM2 Pressektion 201001-210228.xlsx',trimproblem=True):
     # extract operation data from spreadsheet and return as dataframe
+    # if trimproblem=true then 
     df = pd.read_excel(filename)
-    return df
+    print(df)
+    df_trim= df.set_index(['REASONDESCRIPTION'],\
+        drop=True).loc['Trimproblem'].copy() # Massakladd, Hål ??
+    return df_trim
 
 def plotData():
     pass
