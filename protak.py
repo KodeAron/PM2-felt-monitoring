@@ -18,9 +18,11 @@ def readData(filename='../data_protak/ProTAK PM2 Pressektion 201001-210228.xlsx'
     # extract operation data from spreadsheet and return as dataframe
     # if trimproblem=true then 
     df = pd.read_excel(filename)
-    print(df)
-    df_trim= df.set_index(['REASONDESCRIPTION'],\
-        drop=True).loc['Trimproblem'].copy() # Massakladd, Hål ??
+    # Trimproblem, Massakladd, Hål. More relevant REASONDESCRIPTION ??
+    # df_trim= df.set_index(['REASONDESCRIPTION'],\
+    #     drop=True).loc['Trimproblem'].copy() 
+    df_trim = df[df.REASONDESCRIPTION.isin(["Trimproblem"])]
+    # df['Datetime'] = pd.to_datetime(df['Datetime'], format='%d-%m-%Y %H:%M:%S')
     return df_trim
 
 def plotData():
