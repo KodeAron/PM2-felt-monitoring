@@ -10,6 +10,7 @@ matplotlib = "*"
 scipy = "*"
 pandas = "*"
 xlrd = "*"
+openpyxl = "*"
 
 [dev-packages]
 

@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "10e6a01360362c37e5e4dfe52b2939823534312e53a5ae19e44256e300f5b147"
+            "sha256": "809407344d2dfaa8d4d14daa9e5cb2a14421293fba972bd2d78a03bd3481cad7"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -22,6 +22,19 @@
                 "sha256:cd7b2d1018258d7247a71425e9f26463dfb444d411c39569972f4ce586b0c9d8"
             ],
             "version": "==0.10.0"
+        },
+        "et-xmlfile": {
+            "hashes": [
+                "sha256:614d9722d572f6246302c4491846d2c393c199cfa4edc9af593437691683335b"
+            ],
+            "version": "==1.0.1"
+        },
+        "jdcal": {
+            "hashes": [
+                "sha256:1abf1305fce18b4e8aa248cf8fe0c56ce2032392bc64bbd61b5dff2a19ec8bba",
+                "sha256:472872e096eb8df219c23f2689fc336668bdb43d194094b5cc1707e1640acfc8"
+            ],
+            "version": "==1.4.1"
         },
         "kiwisolver": {
             "hashes": [
@@ -121,6 +134,14 @@
             ],
             "index": "pypi",
             "version": "==1.20.1"
+        },
+        "openpyxl": {
+            "hashes": [
+                "sha256:1a4b3869c2500b5c713e8e28341cdada49ecfcff1b10cd9006945f5bcefc090d",
+                "sha256:b229112b46e158b910a5d1b270b212c42773d39cab24e8db527f775b82afc041"
+            ],
+            "index": "pypi",
+            "version": "==3.0.6"
         },
         "pandas": {
             "hashes": [
