@@ -33,19 +33,22 @@ def plotVibNLogg(df_observer, df_protak):
     # ax0.set_yscale("log")
     line0, = ax0.plot(df_observer.Datetime, df_observer.RMS, color='r', label="RMS")
     line2, = ax0.plot(df_observer.Datetime, df_observer.Kurtosis, color='g')
-    myFmt = mdates.DateFormatter('%d/%m %H:%M') # select format of datetime
-    ax0.xaxis.set_major_formatter(myFmt)
+    
 
     # the second subplot
     # shared axis X
     ax1 = plt.subplot(gs[1], sharex = ax0)
-    line1, = ax1.plot(df_protak.STARTDATE, np.ones(len(df_protak.STARTDATE)), color='b','*')
+    ptak_dates=df_protak.STARTDATE[500:-1]
+    line1, = ax1.plot(ptak_dates, np.ones(len(ptak_dates)),'*', color='b')
     # myFmt = mdates.DateFormatter('%d/%m %H:%M') # select format of datetime
     # plt.ax0.xaxis.set_major_formatter(myFmt)
     plt.setp(ax0.get_xticklabels(), visible=False)
     # remove last tick label for the second subplot
     yticks = ax1.yaxis.get_major_ticks()
     yticks[-1].label1.set_visible(False)
+    
+    myFmt = mdates.DateFormatter('%d/%m') # select format of datetime
+    ax1.xaxis.set_major_formatter(myFmt)
 
     # put legend on first subplot
     ax0.legend((line0, line2, line1), ('rms', 'kurtosis','logposts'), loc='upper left')
