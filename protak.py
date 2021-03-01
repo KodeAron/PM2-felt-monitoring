@@ -30,12 +30,17 @@ def readData(filename='../data_protak/ProTAK PM2 Pressektion 201001-210228.xlsx'
     return df_trim
     
 def booleanDatePlot(dataframe):
-    
+    df_trim= df.set_index(['REASONDESCRIPTION'],\
+        drop=True).loc['Trimproblem'].copy() 
 
-def plotData(dataframe):
+# def plotData(dataframe):
+#     pass
 
+def checkDatetimeForProblem(dataframe,datetime)
+    # check if specific point in time had any problem
+    # return boolean value and REASONDESCRIPTION
 
-    pass
+    return problemBool, reasondescription
 
 if __name__ == '__main__':
     main()
