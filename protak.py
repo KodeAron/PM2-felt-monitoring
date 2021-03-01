@@ -11,28 +11,18 @@ import pandas as pd
 def main():
     filename = '../data_protak/ProTAK PM2 Pressektion 201001-210228.xlsx'
     df = readData()
-    print(df)
+    print(df[df.REASONDESCRIPTION=='Trimproblem'])
 
 
-def readData(filename='../data_protak/ProTAK PM2 Pressektion 201001-210228.xlsx',trimproblem=True):
+def readData(filename='../data_protak/ProTAK PM2 Pressektion 201001-210228.xlsx',reasonfilter=['Trimproblem']):
     # extract operation data from spreadsheet and return as dataframe
-    # if trimproblem=true then 
     df = pd.read_excel(filename)
-
-    # multifilter=(df['REASONDESCRIPTION']=='Trimproblem')
-        # *(df_component['Korsningkategori']=='Rorlig')\
-        # *(df_sameTrend['Befastningskategori']=='Pandrol')\
-        # *(df_sameTrend['Sliperkategori']=='Betong')\
-        # *(df_sameTrend['Ballastkategori']=='M1')\
-    # df_trim = df[multifilter]
-
+    # create new df fitlered on REASONDESCRIPTION in reasonfilter
     # Trimproblem, Massakladd, Hål. More relevant REASONDESCRIPTION ??
-    # df_trim= df.set_index(['REASONDESCRIPTION'],\
-        # drop=True).loc['Trimproblem'].copy() 
-    # df_trim = df[df.REASONDESCRIPTION.isin(["Trimproblem"])].copy().reset_index()
-    df_trim= df.set_index(['REASONDESCRIPTION'],drop=True)\
-        .loc['Trimproblem'].reset_index(drop=False,inplace=False)
-    df_trim.dropna(axis=1, how='all', inplace=True) # remove empty columns
+    df_trim = df[df.REASONDESCRIPTION.isin(reasonfilter)].copy().reset_index(drop=True,inplace=False)
+    # remove empty columns
+    df_trim.dropna(axis=1, how='all', inplace=True) 
+    # convert to datetime format
     df_trim['STARTDATE'] = pd.to_datetime(df_trim['STARTDATE'], format='%d-%m-%Y %H:%M:%S')
     df_trim['ENDDATE'] = pd.to_datetime(df_trim['ENDDATE'], format='%d-%m-%Y %H:%M:%S')
     return df_trim
