@@ -13,7 +13,7 @@ def main():
 
 
 
-def readFeltData(filename)
+def readFeltData(filename='../data_felt/Filtbyten.xlsx')
     # extract felt data from spreadsheet and return as dataframe
     return # dataframe
 
