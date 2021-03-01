@@ -14,7 +14,9 @@ def main():
     print(df[df.REASONDESCRIPTION=='Trimproblem'])
 
 
-def readData(filename='../data_protak/ProTAK PM2 Pressektion 201001-210228.xlsx',reasonfilter=['Trimproblem']):
+def readData(filename='../data_protak/ProTAK PM2 Pressektion 201001-210228.xlsx',
+    reasonfilter=['Trimproblem']):
+    
     # extract operation data from spreadsheet and return as dataframe
     df = pd.read_excel(filename)
     # create new df fitlered on REASONDESCRIPTION in reasonfilter
@@ -26,8 +28,13 @@ def readData(filename='../data_protak/ProTAK PM2 Pressektion 201001-210228.xlsx'
     df_trim['STARTDATE'] = pd.to_datetime(df_trim['STARTDATE'], format='%d-%m-%Y %H:%M:%S')
     df_trim['ENDDATE'] = pd.to_datetime(df_trim['ENDDATE'], format='%d-%m-%Y %H:%M:%S')
     return df_trim
+    
+def booleanDatePlot(dataframe):
+    
 
-def plotData():
+def plotData(dataframe):
+
+
     pass
 
 if __name__ == '__main__':
