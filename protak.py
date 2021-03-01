@@ -11,7 +11,7 @@ import pandas as pd
 def main():
     filename = '../data_protak/ProTAK PM2 Pressektion 201001-210228.xlsx'
     df = readData()
-    print(df[4])
+    print(df)
 
 
 def readData(filename='../data_protak/ProTAK PM2 Pressektion 201001-210228.xlsx',trimproblem=True):
@@ -32,6 +32,7 @@ def readData(filename='../data_protak/ProTAK PM2 Pressektion 201001-210228.xlsx'
     # df_trim = df[df.REASONDESCRIPTION.isin(["Trimproblem"])].copy().reset_index()
     df_trim= df.set_index(['REASONDESCRIPTION'],drop=True)\
         .loc['Trimproblem'].reset_index(drop=False,inplace=False)
+    df_trim.dropna(axis=1, how='all', inplace=True) # remove empty columns
     df_trim['STARTDATE'] = pd.to_datetime(df_trim['STARTDATE'], format='%d-%m-%Y %H:%M:%S')
     df_trim['ENDDATE'] = pd.to_datetime(df_trim['ENDDATE'], format='%d-%m-%Y %H:%M:%S')
     return df_trim
