@@ -34,7 +34,7 @@ def readData(filename='../data_protak/ProTAK PM2 Pressektion 201001-210228.xlsx'
 def booleanDatePlot(dataframe):
     # df_trim= dataframe.set_index(['REASONDESCRIPTION'],\
     #     drop=True).loc['Trimproblem'].copy() 
-    plt.plot(dataframe.STARTDATE, np.ones(len(dataframe.STARTDATE)),'*', label="kurtosis")
+    plt.plot(dataframe.STARTDATE, np.ones(len(dataframe.STARTDATE)),'*', label="")
     myFmt = mdates.DateFormatter('%d/%m %H:%M') # select format of datetime
     plt.gca().xaxis.set_major_formatter(myFmt)
     plt.show()
