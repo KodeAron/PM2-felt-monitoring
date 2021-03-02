@@ -16,10 +16,10 @@ def main():
     booleanDatePlot(df)
 
 
-def readData(filename='../data_protak/ProTAK PM2 Pressektion 201001-210228.xlsx',
+def loadData(filename='../data_protak/ProTAK PM2 Pressektion 201001-210228.xlsx',
     reasonfilter=['Trimproblem']):
     
-    # extract operation data from spreadsheet and return as dataframe
+    # read operation data from spreadsheet and return as dataframe
     df = pd.read_excel(filename)
     # create new df fitlered on REASONDESCRIPTION in reasonfilter
     # Trimproblem, Massakladd, Hål. More relevant REASONDESCRIPTION ??
