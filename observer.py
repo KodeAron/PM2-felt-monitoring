@@ -18,29 +18,31 @@ def main():
     sensorPosition = 'P001F'
     timePeriod = '201027-210221'
     # dataUFF_to_featuresCSV(sensorPosition, timePeriod)
-    featuresDF = dataUFF_to_featuresDF(sensorPosition, timePeriod)
+    featuresDF = dataUFF_to_featuresCSV(sensorPosition, timePeriod)
     # print(data[0])
     # # plotSignal(data, 4)
     print(featuresDF.loc[4])
-    plotFeatures(featuresDF)
+    plot_features(featuresDF)
     
 def load_data(sensorPositions=[]):
 # Load data from CSVs if available. Return list of dataframes, one for each position.
     return listOfDataframes
 
-def UFF_to_CSV(sensorPositions=[],timePeriod=''):
+def convert_data(sensorPositions=[],timePeriod=''):
 # load UFF, convert to dataframe (with only interesting fields) and save to CSV
 # sensorPositions: list of sensor positions that should be retrieved
-    pass
+
+    dataUFF_to_featuresCSV(sensorPositions[0],'201027-210221')
 
 def dataUFF_to_featuresCSV(sensorPosition, timePeriod):
     featuresDF = dataUFF_to_featuresDF(sensorPosition, timePeriod)
     csvfilename = '../featuresPerPosition/' + sensorPosition + '_' + timePeriod + '.csv'
     featuresDF.to_csv(csvfilename)
+    return featuresDF
 
 def dataUFF_to_featuresDF(sensorPosition, timePeriod):
-    data = readUFF('../data_observer/' + sensorPosition + '_A_' + timePeriod + '.uff')
-    featuresDF = featuresAsDataframe(data)
+    data = read_UFF('../data_observer/' + sensorPosition + '_A_' + timePeriod + '.uff')
+    featuresDF = features_dataframe(data)
     return featuresDF
 
 def read_UFF(filename):
