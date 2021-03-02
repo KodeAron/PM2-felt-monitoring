@@ -45,15 +45,35 @@ def convert_data(sensorPositions=[],timePeriod=''):
             for entry in dirs:
                 # exclued everything that is not UFF file
                 if entry.name.endswith('.UFF') and entry.is_file():
-                    print(entry.name)
+                    print(entry.name) # testing
+                    # sensor_position, time_period = split_filename(entry.name)
+                    dataUFF_to_featuresCSV(entry.name)
 
     # dataUFF_to_featuresCSV(sensorPositions[0],'201027-210221')
     # return listOfDataframes
+    
+def split_filename(filename):
+    splitted = filename.split('.')[0].split('_')
+    sensor_position = splitted[0]
+    # data_type = splitted[1] # ex. A for acceleration
+    time_period = splitted[-1] # last element
+    return sensor_position, time_period
 
-def dataUFF_to_featuresCSV(sensorPosition, timePeriod):
-    featuresDF = dataUFF_to_featuresDF(sensorPosition, timePeriod)
-    csvfilename = '../featuresPerPosition/' + sensorPosition + '_' + timePeriod + '.csv'
-    featuresDF.to_csv(csvfilename)
+def dataUFF_to_featuresCSV(sensPos_or_filename, timePeriod=''):
+# read an UFF file, create features dataframe and save 
+    in1len = len(sensPos_or_filename)
+    if in1len<5 or (in1len==5 and len(timePeriod)!=13):
+        # return error code if to short or missing timePeriod when sensorPosition is given
+        featuresDF=-1     
+    else:
+        if in1len>5:
+        # if sensorPosition is long then treat as filename
+            sensorPosition,timePeriod = split_filename(sensPos_or_filename)
+        else:
+            sensPos_or_filename = sensorPosition
+        featuresDF = dataUFF_to_featuresDF(sensorPosition, timePeriod)
+        csvfilename = '../featuresPerPosition/' + sensorPosition + '_' + timePeriod + '.csv'
+        featuresDF.to_csv(csvfilename)
     return featuresDF
 
 def dataUFF_to_featuresDF(sensorPosition, timePeriod):
