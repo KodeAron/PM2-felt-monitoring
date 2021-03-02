@@ -13,16 +13,18 @@ import pyuff
 import csv # no installation needed?
 import scipy.stats as spstats
 import pandas as pd
+import os
 
 def main():
     sensorPosition = 'P001F'
     timePeriod = '201027-210221'
     # dataUFF_to_featuresCSV(sensorPosition, timePeriod)
-    featuresDF = dataUFF_to_featuresCSV(sensorPosition, timePeriod)
+    # featuresDF = dataUFF_to_featuresCSV(sensorPosition, timePeriod)
     # print(data[0])
     # # plotSignal(data, 4)
-    print(featuresDF.loc[4])
-    plot_features(featuresDF)
+    # print(featuresDF.loc[4])
+    # plot_features(featuresDF)
+    convert_data()
     
 def load_data(sensorPositions=[]):
 # Load data from CSVs if available. Return list of dataframes, one for each position.
@@ -31,8 +33,22 @@ def load_data(sensorPositions=[]):
 def convert_data(sensorPositions=[],timePeriod=''):
 # load UFF, convert to dataframe (with only interesting fields) and save to CSV
 # sensorPositions: list of sensor positions that should be retrieved
+    path_uff = r"..\data_observer"
+    path_csv = r"..\featuresPerPosition"
+    if len(sensorPositions)==0 and len(timePeriod)==0: 
+        # if no sensorPositions or timePeriods
+        # then convert all files in folder
+        # search through folder for filenames
+        # directories = os.scandir(path_uff)
+        # print(directories)
+        with os.scandir(path_uff) as dirs:
+            for entry in dirs:
+                # exclued everything that is not UFF file
+                if entry.name.endswith('.UFF') and entry.is_file():
+                    print(entry.name)
 
-    dataUFF_to_featuresCSV(sensorPositions[0],'201027-210221')
+    # dataUFF_to_featuresCSV(sensorPositions[0],'201027-210221')
+    # return listOfDataframes
 
 def dataUFF_to_featuresCSV(sensorPosition, timePeriod):
     featuresDF = dataUFF_to_featuresDF(sensorPosition, timePeriod)
