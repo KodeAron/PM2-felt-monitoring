@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*- python3
 """ Accelerometer data reader
 
-Read acceleration data in UFF format. Return dataframe or matrix. Save to csv.
+Read acceleration data in UFF format. Return dataframe. Save to file.
 
 Created on Feb 25 2021 11:30
 @author: Aron, Luleå University of Technology
@@ -18,39 +18,46 @@ import os
 def main():
     sensorPosition = 'P001F'
     timePeriod = '201027-210221'
-    # dataUFF_to_featuresCSV(sensorPosition, timePeriod)
-    # featuresDF = dataUFF_to_featuresCSV(sensorPosition, timePeriod)
+    # dataUFF_to_featuresFile(sensorPosition, timePeriod)
+    # featuresDF = dataUFF_to_featuresFile(sensorPosition, timePeriod)
     # print(data[0])
     # # plotSignal(data, 4)
     # print(featuresDF.loc[4])
     # plot_features(featuresDF)
-    convert_data()
+    testlist = convert_data()
+    print(testlist)
+    load_data()
     
 def load_data(sensorPositions=[]):
-# Load data from CSVs if available. Return list of dataframes, one for each position.
-    return listOfDataframes
+# Load data from files if available. Return list of dataframes, one for each position.
+    #load dataframe from file
+    df = pd.read_pickle(r"..\featuresPerPosition\P001F_201027-210221")
+
+    #print dataframe
+    print(df.data[1])
+    print(df.data[1][35])
+    # return listOfDataframes
 
 def convert_data(sensorPositions=[],timePeriod=''):
-# load UFF, convert to dataframe (with only interesting fields) and save to CSV
+# load UFF, convert to dataframe (with only interesting fields) and save to files
 # sensorPositions: list of sensor positions that should be retrieved
-    path_uff = r"..\data_observer"
-    path_csv = r"..\featuresPerPosition"
+    path_source = r"..\data_observer"
+    # path_result = r"..\featuresPerPosition"
+    listOfDataframes = []
     if len(sensorPositions)==0 and len(timePeriod)==0: 
-        # if no sensorPositions or timePeriods
-        # then convert all files in folder
+    # if no sensorPositions or timePeriods
+    # then convert all files in folder
         # search through folder for filenames
-        # directories = os.scandir(path_uff)
-        # print(directories)
-        with os.scandir(path_uff) as dirs:
+        with os.scandir(path_source) as dirs:
             for entry in dirs:
                 # exclued everything that is not UFF file
                 if entry.name.endswith('.UFF') and entry.is_file():
                     print(entry.name) # testing
                     # sensor_position, time_period = split_filename(entry.name)
-                    dataUFF_to_featuresCSV(entry.name)
+                    listOfDataframes.append(dataUFF_to_featuresFile(entry.name))
 
-    # dataUFF_to_featuresCSV(sensorPositions[0],'201027-210221')
-    # return listOfDataframes
+    # dataUFF_to_featuresFile(sensorPositions[0],'201027-210221')
+    return listOfDataframes
     
 def split_filename(filename):
     splitted = filename.split('.')[0].split('_')
@@ -59,7 +66,7 @@ def split_filename(filename):
     time_period = splitted[-1] # last element
     return sensor_position, time_period
 
-def dataUFF_to_featuresCSV(sensPos_or_filename, timePeriod=''):
+def dataUFF_to_featuresFile(sensPos_or_filename, timePeriod=''):
 # read an UFF file, create features dataframe and save 
     in1len = len(sensPos_or_filename)
     if in1len<5 or (in1len==5 and len(timePeriod)!=13):
@@ -72,8 +79,11 @@ def dataUFF_to_featuresCSV(sensPos_or_filename, timePeriod=''):
         else:
             sensPos_or_filename = sensorPosition
         featuresDF = dataUFF_to_featuresDF(sensorPosition, timePeriod)
-        csvfilename = '../featuresPerPosition/' + sensorPosition + '_' + timePeriod + '.csv'
-        featuresDF.to_csv(csvfilename)
+        result_filename = '../featuresPerPosition/' + sensorPosition + '_' + timePeriod
+        # try:
+        featuresDF.to_pickle(result_filename)
+        # except:
+        #     print('nope')
     return featuresDF
 
 def dataUFF_to_featuresDF(sensorPosition, timePeriod):
