@@ -68,8 +68,8 @@ def plotFeatures(features):
         plt.show()
     elif type(features) is pd.DataFrame:
         # plt.plot(features.Datetime.to_pydatetime(),features.RMS,'b-', label="RMS")
-        plt.plot(features.Datetime, features.RMS,'b-', label="RMS")
-        plt.plot(features.Datetime, features.Kurtosis,'r-', label="kurtosis")
+        plt.plot(features.Datetime, features.RMS,'b-', label="rms")
+        plt.plot(features.Datetime, features.KURT,'r-', label="kurtosis")
         myFmt = mdates.DateFormatter('%d/%m') # select format of datetime
         plt.gca().xaxis.set_major_formatter(myFmt)
         plt.show()
@@ -93,7 +93,7 @@ def featuresAsMatrix(data):
 
 def featuresAsDataframe(data):
     # rms, kurtosis
-    featuresDF = pd.DataFrame(columns=['Datetime', 'RMS', 'Kurtosis'])
+    featuresDF = pd.DataFrame(columns=['Datetime', 'RMS', 'KURT'])
 
     for i in range(len(data)):
         pass
@@ -101,7 +101,7 @@ def featuresAsDataframe(data):
         val_rms = np.sqrt(np.mean(data[i]['data']**2))
         val_kurtosis = spstats.kurtosis(np.abs(data[i]['data']))
         # save the calculated features in dataframe. Get datetime at id3 in data
-        featuresDF = featuresDF.append({'Datetime': data[i]['id3'], 'RMS': val_rms, 'Kurtosis': val_kurtosis},\
+        featuresDF = featuresDF.append({'Datetime': data[i]['id3'], 'RMS': val_rms, 'KURT': val_kurtosis},\
             ignore_index=True)
 
     featuresDF['Datetime'] = pd.to_datetime(featuresDF['Datetime'], format='%d-%m-%Y %H:%M:%S')
