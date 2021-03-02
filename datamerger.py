@@ -18,8 +18,9 @@ import protak
 def main():
     # stackOverflowTest()
     df_observer = observer.dataUFF_to_featuresDF(sensorPosition = 'P001F', timePeriod = '201027-210221')
-    df_protak = protak.readData()
-    plotVibNLogg(df_observer,df_protak)
+    # df_protak = protak.readData()
+    # plotVibNLogg(df_observer,df_protak)
+    doublePlot(df_observer)
 
 def plotVibNLogg(df_observer, df_protak):
 
@@ -91,6 +92,42 @@ def stackOverflowTest():
     # remove vertical gap between subplots
     plt.subplots_adjust(hspace=.0)
     plt.show()
+
+def doublePlot(plt1):
+    # Simple data to display in various forms
+    x = np.linspace(0, 2 * np.pi, 400)
+    y = np.sin(x ** 2)
+
+    fig = plt.figure()
+    # set height ratios for subplots
+    gs = gridspec.GridSpec(2, 1, height_ratios=[2, 1]) 
+    # the first subplot
+    ax0 = plt.subplot(gs[0])
+
+    lines = lineObjs(ax0, plt1)
+
+    # the second subplot
+    # shared axis X
+    ax1 = plt.subplot(gs[1], sharex = ax0)
+    line1, = ax1.plot(x, y, color='b', linestyle='--')
+    plt.setp(ax0.get_xticklabels(), visible=False)
+    # remove last tick label for the second subplot
+    yticks = ax1.yaxis.get_major_ticks()
+    yticks[-1].label1.set_visible(False)
+
+    # remove vertical gap between subplots
+    plt.subplots_adjust(hspace=.0)
+    plt.show()
+
+    ax0.legend()
+    plt.show()
+
+def lineObjs(axis, pltList):
+    # return line tuple from axis and list of strings for desires data
+    
+
+    return lines
+
 
 def plotVibNStops(filename):
     pass
