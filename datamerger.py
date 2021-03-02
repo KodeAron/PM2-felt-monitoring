@@ -18,9 +18,10 @@ import protak
 def main():
     # stackOverflowTest()
     df_observer = observer.dataUFF_to_featuresDF(sensorPosition = 'P001F', timePeriod = '201027-210221')
-    # df_protak = protak.readData()
+    df_protak = protak.readData()
+    print(df_protak.columns)
     # plotVibNLogg(df_observer,df_protak)
-    doublePlot(df_observer)
+    doublePlot([df_observer,df_protak], ['RMS','KURT'],['trimproblem'])#,'massakladd'
 
 def plotVibNLogg(df_observer, df_protak):
 
@@ -93,7 +94,7 @@ def stackOverflowTest():
     plt.subplots_adjust(hspace=.0)
     plt.show()
 
-def doublePlot(plt1):
+def doublePlot(df_list, plt1items, plt2items):
     # Simple data to display in various forms
     x = np.linspace(0, 2 * np.pi, 400)
     y = np.sin(x ** 2)
@@ -104,12 +105,15 @@ def doublePlot(plt1):
     # the first subplot
     ax0 = plt.subplot(gs[0])
 
-    lines = lineObjs(ax0, plt1)
+    line0, = ax0.plot(df_list[0].Datetime, df_list[0].RMS, color='b',label='rms')
+    line1, = ax0.plot(df_list[0].Datetime, df_list[0].KURT, color='r',label='kurtosis')
+    # lines = lineObjs(ax0, plt1)
 
     # the second subplot
     # shared axis X
     ax1 = plt.subplot(gs[1], sharex = ax0)
-    line1, = ax1.plot(x, y, color='b', linestyle='--')
+    ptak_dates = df_list[1].STARTDATE[500:-1] # for robustness, should filter for trimproblem
+    line1, = ax1.plot(ptak_dates, np.ones(len(ptak_dates)),'*',  color='b', label='trimproblem')
     plt.setp(ax0.get_xticklabels(), visible=False)
     # remove last tick label for the second subplot
     yticks = ax1.yaxis.get_major_ticks()
@@ -117,14 +121,18 @@ def doublePlot(plt1):
 
     # remove vertical gap between subplots
     plt.subplots_adjust(hspace=.0)
-    plt.show()
+    
+    # set format for datetime (on x axis)
+    myFmt = mdates.DateFormatter('%d/%m') # select format of datetime
+    ax1.xaxis.set_major_formatter(myFmt)
 
     ax0.legend()
+    ax1.legend()
     plt.show()
 
 def lineObjs(axis, pltList):
     # return line tuple from axis and list of strings for desires data
-    
+
 
     return lines
 
