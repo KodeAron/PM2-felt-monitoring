@@ -24,17 +24,6 @@ def main():
     # print(featuresDF.loc[4])
     plotFeatures(featuresDF)
 
-    ### test stuff
-    # arr = np.array([[1,2,3,4,5],[6,7,8,9,10]])
-    # arr2 = np.array([[11,12,13,14,15]])
-    # testArray = np.concatenate((arr,arr2), axis=0)
-    # print(testArray)
-    # featuresMatrix = np.empty([[2, len(data)]], dtype=float)
-    # print(featuresMatrix)
-    # print(type(data)) # list
-    # print(spstats.kurtosis(np.abs(data[0]['data'])))
-    # print('length',len(data))
-
 def dataUFF_to_featuresCSV(sensorPosition, timePeriod):
     featuresDF = dataUFF_to_featuresDF(sensorPosition, timePeriod)
     csvfilename = '../featuresPerPosition/' + sensorPosition + '_' + timePeriod + '.csv'
@@ -47,10 +36,8 @@ def dataUFF_to_featuresDF(sensorPosition, timePeriod):
 
 def readUFF(filename):
     uff_file = pyuff.UFF(filename) # Tidssignaler_t.o.m._210221/
-    # uff_types = uff_file.get_set_types()
-    # print(uff_types)
     # uff_set1 = uff_file.read_sets(0)
-    # print(uff_set1)
+    # print(uff_set1) # print the dictionary for measurement 1
     data = uff_file.read_sets()
     return data
 
@@ -85,9 +72,6 @@ def featuresAsMatrix(data):
         elem_kurtosis = spstats.kurtosis(np.abs(data[i]['data']))
         new_row = np.array([[elem_rms, elem_kurtosis]])
         featuresMatrix[i] = new_row
-
-        ## add rows in end of matrix
-        # featuresMatrix = np.concatenate((featuresMatrix,new_row), axis=0)
     
     return featuresMatrix
 
@@ -96,8 +80,6 @@ def featuresAsDataframe(data):
     featuresDF = pd.DataFrame(columns=['Datetime', 'RMS', 'KURT'])
 
     for i in range(len(data)):
-        pass
-        # featuresDict = 
         val_rms = np.sqrt(np.mean(data[i]['data']**2))
         val_kurtosis = spstats.kurtosis(np.abs(data[i]['data']))
         # save the calculated features in dataframe. Get datetime at id3 in data
