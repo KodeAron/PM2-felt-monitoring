@@ -25,7 +25,7 @@ def main():
     # print(featuresDF.loc[4])
     # plot_features(featuresDF)
     # testlist = convert_data(['P001D', 'P010F'])
-    testlist=load_data(['P001D', 'P010F'])
+    testlist=load_data(timePeriod=timePeriod)
     # print(len(testlist))
     plot_features(testlist[0])
     
@@ -37,8 +37,7 @@ def load_data(sensorPositions=[],timePeriod=''):
     # search through folder for filenames
     dirs = os.scandir(path_featuresfolder)
     # if no sensorPositions or timePeriods then convert all files in folder
-    if len(sensorPositions)==0 and len(timePeriod)==0: 
-        # with os.scandir(path_source) as dirs:
+    if len(sensorPositions)==0 and len(timePeriod)==0:
         for entry in dirs:
             print(entry.name) # testing
             #load dataframe from file
@@ -47,10 +46,15 @@ def load_data(sensorPositions=[],timePeriod=''):
         # print('Debug: len(sensorPositions)==0 and len(timePeriod)==0')
     else: # else check if specified sensorPositions are available in folder
         converted_files=[] # save files that are converted
+        not_found_sensors = sensorPositions # list with sensors not found in folder
         for entry in dirs:
             sensor_position, time_period = split_filename(entry.name)
-            if (sensor_position in sensorPositions and (len(timePeriod)==0 or timePeriod==time_period)):
-                sensorPositions.remove(sensor_position)
+            if (sensor_position in not_found_sensors and (len(timePeriod)==0 or timePeriod==time_period)):
+                not_found_sensors.remove(sensor_position)
+                df = pd.read_pickle(path_featuresfolder + entry.name)
+                listOfDataframes.append(df)
+                converted_files.append(entry.name)
+            elif (len(sensorPositions)==0 and timePeriod==time_period):
                 df = pd.read_pickle(path_featuresfolder + entry.name)
                 listOfDataframes.append(df)
                 converted_files.append(entry.name)
