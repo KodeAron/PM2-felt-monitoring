@@ -15,6 +15,11 @@ import scipy.stats as spstats
 import pandas as pd
 import os
 
+# global variables
+path_data = R"..\\featuresPerPosition\\"
+path_features = R"..\\featuresPerPosition\\" # file path folder containing the features files
+
+
 def main():
     sensorPosition = 'P001F'
     timePeriod = '201027-210221'
@@ -24,23 +29,23 @@ def main():
     # # plotSignal(data, 4)
     # print(featuresDF.loc[4])
     # plot_features(featuresDF)
-    testlist = convert_data('201027-210221')
-    # testlist=load_data(timePeriod=timePeriod)
+    # testlist = convert_data('201027-210221')
+    testlist=load_data(timePeriod=timePeriod)
     # print(testlist)
     # plot_features('test')
+    # plot_signal('test')
     
 def load_data(sensorPositions=[],timePeriod=''):
 # Load data from files if available. Return list of dataframes, one for each position.
-    path_featuresfolder = R"..\\featuresPerPosition\\"
     listOfDataframes = []
     # search through folder for filenames
-    dirs = os.scandir(path_featuresfolder)
+    dirs = os.scandir(path_features)
     # if no sensorPositions or timePeriods then convert all files in folder
     if len(sensorPositions)==0 and len(timePeriod)==0:
         for entry in dirs:
             print(entry.name) # testing
             #load dataframe from file
-            read_pickle_to_dataframe(listOfDataframes,path_featuresfolder,entry.name)
+            read_pickle_to_dataframe(listOfDataframes,path_features,entry.name)
         # print('Debug: len(sensorPositions)==0 and len(timePeriod)==0')
     else: # else check if specified sensorPositions are available in folder
         converted_files=[] # save files that are converted
@@ -49,10 +54,10 @@ def load_data(sensorPositions=[],timePeriod=''):
             sensor_position, time_period = split_filename(entry.name)
             if (sensor_position in not_found_sensors and (len(timePeriod)==0 or timePeriod==time_period)):
                 not_found_sensors.remove(sensor_position)
-                read_pickle_to_dataframe(listOfDataframes,path_featuresfolder,entry.name)
+                read_pickle_to_dataframe(listOfDataframes,entry.name)
                 converted_files.append(entry.name)
             elif (len(sensorPositions)==0 and timePeriod==time_period):
-                read_pickle_to_dataframe(listOfDataframes,path_featuresfolder,entry.name)
+                read_pickle_to_dataframe(listOfDataframes,entry.name)
                 converted_files.append(entry.name)
         print('Not in folder: ',end='') 
         print(sensorPositions)
@@ -61,21 +66,21 @@ def load_data(sensorPositions=[],timePeriod=''):
 
     return listOfDataframes
     
-def read_pickle_to_dataframe(listOfDataframes,path_featuresfolder,filename):
-    df = pd.read_pickle(path_featuresfolder + filename)
+def read_pickle_to_dataframe(listOfDataframes,filename):
+    df = pd.read_pickle(path_features + filename)
     listOfDataframes.append([df,filename])
 
-def convert_data(timePeriod='', source_folder = "../data_observer/", target_folder = "../featuresPerPosition/"):
+def convert_data(timePeriod=''):
 # load UFF, convert to dataframe (with only interesting fields) and save to files
     # search through folder for filenames
-    with os.scandir(source_folder) as dirs:
+    with os.scandir(path_data as dirs:
         for entry in dirs:
             sensor_position, time_period = split_filename(entry.name)
             # exclued everything that is not UFF file
             if entry.name.endswith('.UFF') and entry.is_file() :
                 # only convert files in specified time period or if none is specified
                 if (len(timePeriod)==0 or timePeriod==time_period):
-                    dataUFF_to_featuresFile(entry.name, target_folder=target_folder)
+                    dataUFF_to_featuresFile(entry.name)
                     print('Converted:',end=' ')
                     print(entry.name) # print filename for loaded file
                 else: #(len(timePeriod)!=0 and timePeriod!=time_period):
@@ -89,7 +94,7 @@ def split_filename(filename):
     time_period = splitted[-1] # last element
     return sensor_position, time_period
 
-def dataUFF_to_featuresFile(sensPos_or_filename, timePeriod='',target_folder = "../featuresPerPosition/"):
+def dataUFF_to_featuresFile(sensPos_or_filename, timePeriod=''):
 # read an UFF file, create features dataframe and save 
     in1len = len(sensPos_or_filename)
     if in1len<5 or (in1len==5 and len(timePeriod)!=13):
@@ -102,7 +107,7 @@ def dataUFF_to_featuresFile(sensPos_or_filename, timePeriod='',target_folder = "
         else:
             sensPos_or_filename = sensorPosition
         featuresDF = dataUFF_to_featuresDF(sensorPosition, timePeriod)
-        result_filename = target_folder + sensorPosition + '_' + timePeriod
+        result_filename = path_features + sensorPosition + '_' + timePeriod
         # try:
         featuresDF.to_pickle(result_filename)
         # except:
@@ -121,7 +126,12 @@ def read_UFF(filename):
     data = uff_file.read_sets()
     return data
 
-def plot_signal(data, index):
+def plot_signal(location, date):
+# plot signal by specifying which sensor/file and what date
+    # assume location is filename
+    pass
+
+def plot_signal_from_data(data, index):
     plt.semilogy(data[index]['x'], np.abs(data[index]['data']))
     plt.xlabel('Time [s]')
     plt.ylabel('Acceleration [g]')
