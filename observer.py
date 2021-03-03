@@ -27,8 +27,8 @@ def main():
     # testlist=load_data(timePeriod=timePeriod)
     # print(testlist)
     # plot_features('test')
-    # plot_signal('P001F','201205')
-    plot_signal('testar','')
+    plot_signal('P001F','05-12-2020')
+    # plot_signal('testar','')
     
 def load_data(sensorPositions=[],timePeriod=''):
 # Load data from files if available. Return list of dataframes, one for each position.
@@ -111,12 +111,15 @@ def dataUFF_to_featuresDF(sensorPosition, timePeriod):
     return featuresDF
 
 def read_UFF(filename):
+    if not filename.startswith('../'):
+        filename = path_data + filename
     uff_file = pyuff.UFF(filename)
     data = uff_file.read_sets()
     return data
 
-def plot_signal(location, date):
+def plot_signal(location, datestring):
 # plot signal by specifying which sensor/file and what date
+# datestring as 'DD-MM-YYYY'
     # assume location is filename
     file_found=False
     for entry in os.scandir(path_data):
@@ -125,17 +128,24 @@ def plot_signal(location, date):
             print('Extracting signal data from',end=' ')
             print(entry.name,end=' ')
             print('...')
-            # data=read_UFF(entry.name)
+            dicts = read_UFF(entry.name)
+            # check which datetime string ('id3' in the data dict) that 
+            # starts with the requested date
+            index = next((i for i, item in enumerate(dicts) if item['id3'].startswith(datestring)), None)
+            print(index)
+            plot_signal_from_data(dicts,index)
             break # escape loop when one file is found
     if not file_found:
         print('Could not retrieve data. Check spelling and that the file is available in',end=' ')
         print(path_data)
 
 def plot_signal_from_data(data, index):
-    plt.semilogy(data[index]['x'], np.abs(data[index]['data']))
+    plt.plot(data[index]['x'], data[index]['data'])
     plt.xlabel('Time [s]')
     plt.ylabel('Acceleration [g]')
     # plt.xlim([0,10])
+    plt.title(data[index]['id3'])
+    print(data[index])
     plt.show()
 
 def plot_features(features):
