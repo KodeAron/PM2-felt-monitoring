@@ -27,7 +27,8 @@ def main():
     # testlist=load_data(timePeriod=timePeriod)
     # print(testlist)
     # plot_features('test')
-    plot_signal('P001F','201205')
+    # plot_signal('P001F','201205')
+    plot_signal('testar','')
     
 def load_data(sensorPositions=[],timePeriod=''):
 # Load data from files if available. Return list of dataframes, one for each position.
@@ -117,13 +118,18 @@ def read_UFF(filename):
 def plot_signal(location, date):
 # plot signal by specifying which sensor/file and what date
     # assume location is filename
+    file_found=False
     for entry in os.scandir(path_data):
         if entry.name.startswith(location):
+            file_found=True
             print('Extracting signal data from',end=' ')
             print(entry.name,end=' ')
             print('...')
             # data=read_UFF(entry.name)
-    # 
+            break # escape loop when one file is found
+    if not file_found:
+        print('Could not retrieve data. Check spelling and that the file is available in',end=' ')
+        print(path_data)
 
 def plot_signal_from_data(data, index):
     plt.semilogy(data[index]['x'], np.abs(data[index]['data']))
