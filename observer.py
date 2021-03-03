@@ -27,7 +27,7 @@ def main():
     # testlist = convert_data(['P001D', 'P010F'])
     testlist=load_data(timePeriod=timePeriod)
     print(testlist)
-    # plot_features(testlist[0])
+    plot_features(testlist[0][0])
     
 def load_data(sensorPositions=[],timePeriod=''):
 # Load data from files if available. Return list of dataframes, one for each position.
@@ -147,19 +147,22 @@ def plot_signal(data, index):
     plt.show()
 
 def plot_features(features):
-    if type(features) is np.array:
-        plt.plot(features[:,0],'b-', label="rms")
-        plt.plot(features[:,1],'r-', label="kurtosis")
-        plt.show()
-    elif type(features) is pd.DataFrame:
-        # plt.plot(features.Datetime.to_pydatetime(),features.RMS,'b-', label="RMS")
-        plt.plot(features.Datetime, features.RMS,'b-', label="rms")
-        plt.plot(features.Datetime, features.KURT,'r-', label="kurtosis")
-        myFmt = mdates.DateFormatter('%d/%m') # select format of datetime
-        plt.gca().xaxis.set_major_formatter(myFmt)
-        plt.show()
+    if type(features) is list and len(features):
+        # unpack if features is list (containing filename/sensorPosition)
+        features = features[0]
+    if type(features) is pd.DataFrame:
+        time = features.Datetime
+        RMS = features.RMS
+        KURT = features.KURT
     else:
         print('Unknown format for features')
+        return
+    # plt.plot(features.Datetime.to_pydatetime(),features.RMS,'b-', label="RMS")
+    plt.plot(time, RMS,'b-', label="rms")
+    plt.plot(time, KURT,'r-', label="kurtosis")
+    myFmt = mdates.DateFormatter('%d/%m') # select format of datetime
+    plt.gca().xaxis.set_major_formatter(myFmt)
+    plt.show()
 
 def features_dataframe(data):
     # rms, kurtosis
