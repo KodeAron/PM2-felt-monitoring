@@ -30,6 +30,7 @@ def main():
     
 def load_data(sensorPositions=[]):
 # Load data from files if available. Return list of dataframes, one for each position.
+    path_result = r"..\featuresPerPosition"
     #load dataframe from file
     df = pd.read_pickle(r"..\featuresPerPosition\P001F_201027-210221")
 
@@ -122,14 +123,14 @@ def plot_features(features):
 
 def features_dataframe(data):
     # rms, kurtosis
-    featuresDF = pd.DataFrame(columns=['Datetime', 'RMS', 'KURT','x','data'])
+    featuresDF = pd.DataFrame(columns=['Datetime', 'RMS', 'KURT'])#,'x','data'])
 
     for i in range(len(data)):
         val_rms = np.sqrt(np.mean(data[i]['data']**2))
         val_kurtosis = spstats.kurtosis(np.abs(data[i]['data']))
         # save the calculated features in dataframe. Get datetime at id3 in data
         featuresDF = featuresDF.append({'Datetime':data[i]['id3'], 
-            'RMS':val_rms, 'KURT':val_kurtosis, 'x':data[i]['x'], 'data':data[i]['data']},
+            'RMS':val_rms, 'KURT':val_kurtosis},#, 'x':data[i]['x'], 'data':data[i]['data']},
             ignore_index=True)
 
     featuresDF['Datetime'] = pd.to_datetime(featuresDF['Datetime'], format='%d-%m-%Y %H:%M:%S')
