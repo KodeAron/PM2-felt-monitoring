@@ -21,14 +21,8 @@ path_features = '../featuresPerPosition/' # file path folder containing the feat
 
 
 def main():
-    sensorPosition = 'P001F'
-    timePeriod = '201027-210221'
-    # dataUFF_to_featuresFile(sensorPosition, timePeriod)
-    # featuresDF = dataUFF_to_featuresFile(sensorPosition, timePeriod)
-    # print(data[0])
-    # # plotSignal(data, 4)
-    # print(featuresDF.loc[4])
-    # plot_features(featuresDF)
+    # sensorPosition = 'P001F'
+    # timePeriod = '201027-210221'
     # testlist = convert_data('201027-210221')
     # testlist=load_data(timePeriod=timePeriod)
     # print(testlist)
@@ -46,7 +40,6 @@ def load_data(sensorPositions=[],timePeriod=''):
             print(entry.name) # testing
             #load dataframe from file
             read_pickle_to_dataframe(listOfDataframes,path_features,entry.name)
-        # print('Debug: len(sensorPositions)==0 and len(timePeriod)==0')
     else: # else check if specified sensorPositions are available in folder
         converted_files=[] # save files that are converted
         not_found_sensors = sensorPositions # list with sensors not found in folder
@@ -108,10 +101,7 @@ def dataUFF_to_featuresFile(sensPos_or_filename, timePeriod=''):
             sensPos_or_filename = sensorPosition
         featuresDF = dataUFF_to_featuresDF(sensorPosition, timePeriod)
         result_filename = path_features + sensorPosition + '_' + timePeriod
-        # try:
         featuresDF.to_pickle(result_filename)
-        # except:
-        #     print('nope')
     return featuresDF
 
 def dataUFF_to_featuresDF(sensorPosition, timePeriod):
@@ -120,9 +110,7 @@ def dataUFF_to_featuresDF(sensorPosition, timePeriod):
     return featuresDF
 
 def read_UFF(filename):
-    uff_file = pyuff.UFF(filename) # Tidssignaler_t.o.m._210221/
-    # uff_set1 = uff_file.read_sets(0)
-    # print(uff_set1) # print the dictionary for measurement 1
+    uff_file = pyuff.UFF(filename)
     data = uff_file.read_sets()
     return data
 
@@ -146,7 +134,7 @@ def plot_signal_from_data(data, index):
 
 def plot_features(features):
     if type(features) is list and len(features):
-        # unpack if features is list (containing filename/sensorPosition)
+    # unpack if features is list (containing filename/sensorPosition)
         features = features[0]
     if type(features) is pd.DataFrame:
         time = features.Datetime
