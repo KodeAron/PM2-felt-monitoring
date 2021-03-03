@@ -24,16 +24,42 @@ def main():
     # # plotSignal(data, 4)
     # print(featuresDF.loc[4])
     # plot_features(featuresDF)
-    testlist = convert_data(['P001D', 'P010F'])
-    # load_data()
+    # testlist = convert_data(['P001D', 'P010F'])
+    testlist=load_data(['P001D', 'P010F'])
+    # print(len(testlist))
+    plot_features(testlist[0])
     
-def load_data(sensorPositions=[]):
+def load_data(sensorPositions=[],timePeriod=''):
 # Load data from files if available. Return list of dataframes, one for each position.
-    path_result = r"..\featuresPerPosition"
-    #load dataframe from file
-    df = pd.read_pickle(r"..\featuresPerPosition\P001F_201027-210221")
+    path_featuresfolder = R"..\\featuresPerPosition\\"
+    # path_result = r"..\featuresPerPosition"
+    listOfDataframes = []
+    # search through folder for filenames
+    dirs = os.scandir(path_featuresfolder)
+    # if no sensorPositions or timePeriods then convert all files in folder
+    if len(sensorPositions)==0 and len(timePeriod)==0: 
+        # with os.scandir(path_source) as dirs:
+        for entry in dirs:
+            print(entry.name) # testing
+            #load dataframe from file
+            df = pd.read_pickle(path_featuresfolder + entry.name)
+            listOfDataframes.append(df)
+        # print('Debug: len(sensorPositions)==0 and len(timePeriod)==0')
+    else: # else check if specified sensorPositions are available in folder
+        converted_files=[] # save files that are converted
+        for entry in dirs:
+            sensor_position, time_period = split_filename(entry.name)
+            if (sensor_position in sensorPositions and (len(timePeriod)==0 or timePeriod==time_period)):
+                sensorPositions.remove(sensor_position)
+                df = pd.read_pickle(path_featuresfolder + entry.name)
+                listOfDataframes.append(df)
+                converted_files.append(entry.name)
+        print('Not in folder: ',end='') 
+        print(sensorPositions)
+        print('Loaded files: ',end='')
+        print(converted_files)
 
-    # return listOfDataframes
+    return listOfDataframes
 
 def convert_data(sensorPositions=[],timePeriod=''):
 # load UFF, convert to dataframe (with only interesting fields) and save to files
