@@ -24,9 +24,8 @@ def main():
     # # plotSignal(data, 4)
     # print(featuresDF.loc[4])
     # plot_features(featuresDF)
-    testlist = convert_data()
-    print(testlist)
-    load_data()
+    testlist = convert_data(['P001D', 'P010F'])
+    # load_data()
     
 def load_data(sensorPositions=[]):
 # Load data from files if available. Return list of dataframes, one for each position.
@@ -34,9 +33,6 @@ def load_data(sensorPositions=[]):
     #load dataframe from file
     df = pd.read_pickle(r"..\featuresPerPosition\P001F_201027-210221")
 
-    #print dataframe
-    print(df.data[1])
-    print(df.data[1][35])
     # return listOfDataframes
 
 def convert_data(sensorPositions=[],timePeriod=''):
@@ -45,17 +41,29 @@ def convert_data(sensorPositions=[],timePeriod=''):
     path_source = r"..\data_observer"
     # path_result = r"..\featuresPerPosition"
     listOfDataframes = []
+    # search through folder for filenames
+    dirs = os.scandir(path_source)
+    # if no sensorPositions or timePeriods then convert all files in folder
     if len(sensorPositions)==0 and len(timePeriod)==0: 
-    # if no sensorPositions or timePeriods
-    # then convert all files in folder
-        # search through folder for filenames
-        with os.scandir(path_source) as dirs:
-            for entry in dirs:
-                # exclued everything that is not UFF file
-                if entry.name.endswith('.UFF') and entry.is_file():
-                    print(entry.name) # testing
-                    # sensor_position, time_period = split_filename(entry.name)
-                    listOfDataframes.append(dataUFF_to_featuresFile(entry.name))
+        # with os.scandir(path_source) as dirs:
+        for entry in dirs:
+            # exclued everything that is not UFF file
+            if entry.name.endswith('.UFF') and entry.is_file():
+                print(entry.name) # testing
+                listOfDataframes.append(dataUFF_to_featuresFile(entry.name))
+        print('Debug: len(sensorPositions)==0 and len(timePeriod)==0')
+    else: # else check if specified sensorPositions are available in folder
+        converted_files=[] # save files that are converted
+        for entry in dirs:
+            sensor_position, time_period = split_filename(entry.name)
+            if (sensor_position in sensorPositions and (len(timePeriod)==0 or timePeriod==time_period)):
+                sensorPositions.remove(sensor_position)
+                listOfDataframes.append(dataUFF_to_featuresFile(entry.name))
+                converted_files.append(entry.name)
+        print('Not in folder: ',end='') 
+        print(sensorPositions)
+        print('Converted files: ',end='')
+        print(converted_files)
 
     # dataUFF_to_featuresFile(sensorPositions[0],'201027-210221')
     return listOfDataframes
