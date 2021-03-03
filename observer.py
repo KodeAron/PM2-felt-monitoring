@@ -16,8 +16,8 @@ import pandas as pd
 import os
 
 # global variables
-path_data = R"..\\featuresPerPosition\\"
-path_features = R"..\\featuresPerPosition\\" # file path folder containing the features files
+path_data = '../data_observer/'
+path_features = '../featuresPerPosition/' # file path folder containing the features files
 
 
 def main():
@@ -30,10 +30,10 @@ def main():
     # print(featuresDF.loc[4])
     # plot_features(featuresDF)
     # testlist = convert_data('201027-210221')
-    testlist=load_data(timePeriod=timePeriod)
+    # testlist=load_data(timePeriod=timePeriod)
     # print(testlist)
     # plot_features('test')
-    # plot_signal('test')
+    plot_signal('P001F','201205')
     
 def load_data(sensorPositions=[],timePeriod=''):
 # Load data from files if available. Return list of dataframes, one for each position.
@@ -73,7 +73,7 @@ def read_pickle_to_dataframe(listOfDataframes,filename):
 def convert_data(timePeriod=''):
 # load UFF, convert to dataframe (with only interesting fields) and save to files
     # search through folder for filenames
-    with os.scandir(path_data as dirs:
+    with os.scandir(path_data) as dirs:
         for entry in dirs:
             sensor_position, time_period = split_filename(entry.name)
             # exclued everything that is not UFF file
@@ -115,7 +115,7 @@ def dataUFF_to_featuresFile(sensPos_or_filename, timePeriod=''):
     return featuresDF
 
 def dataUFF_to_featuresDF(sensorPosition, timePeriod):
-    data = read_UFF('../data_observer/' + sensorPosition + '_A_' + timePeriod + '.uff')
+    data = read_UFF(path_data + sensorPosition + '_A_' + timePeriod + '.uff')
     featuresDF = features_dataframe(data)
     return featuresDF
 
@@ -129,7 +129,13 @@ def read_UFF(filename):
 def plot_signal(location, date):
 # plot signal by specifying which sensor/file and what date
     # assume location is filename
-    pass
+    for entry in os.scandir(path_data):
+        if entry.name.startswith(location):
+            print('Extracting signal data from',end=' ')
+            print(entry.name,end=' ')
+            print('...')
+            # data=read_UFF(entry.name)
+    # 
 
 def plot_signal_from_data(data, index):
     plt.semilogy(data[index]['x'], np.abs(data[index]['data']))
