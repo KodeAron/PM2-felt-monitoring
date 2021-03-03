@@ -26,8 +26,8 @@ def main():
     # plot_features(featuresDF)
     # testlist = convert_data(['P001D', 'P010F'])
     testlist=load_data(timePeriod=timePeriod)
-    # print(len(testlist))
-    plot_features(testlist[0])
+    print(testlist)
+    # plot_features(testlist[0])
     
 def load_data(sensorPositions=[],timePeriod=''):
 # Load data from files if available. Return list of dataframes, one for each position.
@@ -41,8 +41,7 @@ def load_data(sensorPositions=[],timePeriod=''):
         for entry in dirs:
             print(entry.name) # testing
             #load dataframe from file
-            df = pd.read_pickle(path_featuresfolder + entry.name)
-            listOfDataframes.append(df)
+            read_pickle_to_dataframe(listOfDataframes,path_featuresfolder,entry.name)
         # print('Debug: len(sensorPositions)==0 and len(timePeriod)==0')
     else: # else check if specified sensorPositions are available in folder
         converted_files=[] # save files that are converted
@@ -51,12 +50,10 @@ def load_data(sensorPositions=[],timePeriod=''):
             sensor_position, time_period = split_filename(entry.name)
             if (sensor_position in not_found_sensors and (len(timePeriod)==0 or timePeriod==time_period)):
                 not_found_sensors.remove(sensor_position)
-                df = pd.read_pickle(path_featuresfolder + entry.name)
-                listOfDataframes.append(df)
+                read_pickle_to_dataframe(listOfDataframes,path_featuresfolder,entry.name)
                 converted_files.append(entry.name)
             elif (len(sensorPositions)==0 and timePeriod==time_period):
-                df = pd.read_pickle(path_featuresfolder + entry.name)
-                listOfDataframes.append(df)
+                read_pickle_to_dataframe(listOfDataframes,path_featuresfolder,entry.name)
                 converted_files.append(entry.name)
         print('Not in folder: ',end='') 
         print(sensorPositions)
@@ -64,6 +61,11 @@ def load_data(sensorPositions=[],timePeriod=''):
         print(converted_files)
 
     return listOfDataframes
+    
+def read_pickle_to_dataframe(listOfDataframes,path_featuresfolder,filename):
+    df = pd.read_pickle(path_featuresfolder + filename)
+    listOfDataframes.append([df,filename])
+    # return listOfDataframes
 
 def convert_data(sensorPositions=[],timePeriod=''):
 # load UFF, convert to dataframe (with only interesting fields) and save to files
