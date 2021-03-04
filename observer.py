@@ -29,10 +29,12 @@ def main():
     # df = UFFfile_to_featuresDF(position,timeperiod)
     df = load_data([position],timeperiod)
     # print(df)
-    date = dt.datetime(2020,12,5,12)
+    # date = dt.datetime(2020,12,5,12)
     # datetime_list = [dt.datetime(2020,11,5,6,0), dt.datetime(2020,12,3,15,15),dt.datetime(2020,12,7,0,15)]
     plot_features(df[0])
-    print(type(df[0]['featuresDF'].Datetime[0]))
+    clicked_time = pd.to_datetime(point_click[0])
+    print(df[0]['featuresDF'].Datetime[0] == clicked_time)
+    # print(df[0]['featuresDF']['Datetime'].iloc[0])
     
 def load_data(positions=[],timeperiod=''):
 # Load data from files if available. Return list of dataframes, one for each position.
