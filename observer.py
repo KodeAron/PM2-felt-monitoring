@@ -24,15 +24,13 @@ path_features = '../featuresPerPosition/' # file path folder containing the feat
 def main():
     # sensorPosition = 'P001F'
     # timePeriod = '201027-210221'
-    # testlist = convert_data('201027-210221')
-    # testlist=load_data(timePeriod=timePeriod)
-    # print(testlist)
-    # plot_features('test')
-    # plot_signal('P001F','05-12-2020')
+    # testlist = convert_UFFs('201027-210221')
+    UFFdata = 
+    df = UFFdata_to_featuresDF(UFFdata)
     date = dt.datetime(2020,12,5,12)
-    datetime_list = [dt.datetime(2020,11,5,6,0), dt.datetime(2020,12,3,15,15),dt.datetime(2020,12,7,0,15)]
+    # datetime_list = [dt.datetime(2020,11,5,6,0), dt.datetime(2020,12,3,15,15),dt.datetime(2020,12,7,0,15)]
     # plot_signal('testar','')
-    nearest_date, date_diff = nearest(datetime_list,date)
+    nearest_date, date_diff = nearest(df.Datetime,date)
     print(nearest_date)
     print(date_diff)
     
@@ -70,7 +68,7 @@ def read_pickle_to_dataframe(listOfDataframes,filename):
     df = pd.read_pickle(path_features + filename)
     listOfDataframes.append([df,filename])
 
-def convert_data(timePeriod=''):
+def convert_UFFs(timePeriod=''):
 # load UFF, convert to dataframe (with only interesting fields) and save to files
     # search through folder for filenames
     with os.scandir(path_data) as dirs:
@@ -80,7 +78,7 @@ def convert_data(timePeriod=''):
             if entry.name.endswith('.UFF') and entry.is_file() :
                 # only convert files in specified time period or if none is specified
                 if (len(timePeriod)==0 or timePeriod==time_period):
-                    dataUFF_to_featuresFile(entry.name)
+                    UFFfile_to_featuresfile(entry.name)
                     print('Converted:',end=' ')
                     print(entry.name) # print filename for loaded file
                 else: #(len(timePeriod)!=0 and timePeriod!=time_period):
@@ -94,7 +92,7 @@ def split_filename(filename):
     time_period = splitted[-1] # last element
     return sensor_position, time_period
 
-def dataUFF_to_featuresFile(sensPos_or_filename, timePeriod=''):
+def UFFfile_to_featuresfile(sensPos_or_filename, timePeriod=''):
 # read an UFF file, create features dataframe and save 
     in1len = len(sensPos_or_filename)
     if in1len<5 or (in1len==5 and len(timePeriod)!=13):
@@ -106,24 +104,24 @@ def dataUFF_to_featuresFile(sensPos_or_filename, timePeriod=''):
             sensorPosition,timePeriod = split_filename(sensPos_or_filename)
         else:
             sensPos_or_filename = sensorPosition
-        featuresDF = dataUFF_to_featuresDF(sensorPosition, timePeriod)
+        featuresDF = UFFfile_to_featuresDF(sensorPosition, timePeriod)
         result_filename = path_features + sensorPosition + '_' + timePeriod
         featuresDF.to_pickle(result_filename)
     return featuresDF
 
-def dataUFF_to_featuresDF(sensorPosition, timePeriod):
-    data = read_UFF(path_data + sensorPosition + '_A_' + timePeriod + '.uff')
-    featuresDF = features_dataframe(data)
+def UFFfile_to_featuresDF(sensorPosition, timePeriod):
+    data = UFFfile_to_UFFdata(path_data + sensorPosition + '_A_' + timePeriod + '.uff')
+    featuresDF = UFFdata_to_featuresDF(data)
     return featuresDF
 
-def read_UFF(filename):
+def UFFfile_to_UFFdata(filename):
     if not filename.startswith('../'):
         filename = path_data + filename
     uff_file = pyuff.UFF(filename)
-    data = uff_file.read_sets()
-    return data
+    UFFdata = uff_file.read_sets()
+    return UFFdata
 
-def features_dataframe(data):
+def UFFdata_to_featuresDF(UFF_data):
     # rms, kurtosis
     featuresDF = pd.DataFrame(columns=['Datetime', 'RMS', 'KURT'])#,'x','data'])
 
