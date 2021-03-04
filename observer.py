@@ -14,6 +14,7 @@ import csv # no installation needed?
 import scipy.stats as spstats
 import pandas as pd
 import os
+import datetime as dt
 
 # global variables
 path_data = '../data_observer/'
@@ -27,8 +28,13 @@ def main():
     # testlist=load_data(timePeriod=timePeriod)
     # print(testlist)
     # plot_features('test')
-    plot_signal('P001F','05-12-2020')
+    # plot_signal('P001F','05-12-2020')
+    date = dt.datetime(2020,12,5,12)
+    datetime_list = [dt.datetime(2020,11,5,6,0), dt.datetime(2020,12,3,15,15),dt.datetime(2020,12,7,0,15)]
     # plot_signal('testar','')
+    nearest_date, date_diff = nearest(datetime_list,date)
+    print(nearest_date)
+    print(date_diff)
     
 def load_data(sensorPositions=[],timePeriod=''):
 # Load data from files if available. Return list of dataframes, one for each position.
@@ -196,6 +202,16 @@ def on_pick(event):
     print('Data point:', x[ind[0]], y[ind[0]])
     print()
 
+def closest_to_date(collection_of_dates, datetime):
+    if type(collection_of_dates)==list:
+        pass
+    else:
+        print('Unknown type')
+
+def nearest(items, pivot):
+    nearest = min(items, key=lambda x: abs(x - pivot))
+    timedelta = abs(nearest - pivot)
+    return nearest, timedelta
 
 if __name__ == '__main__':
     main()
