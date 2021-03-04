@@ -19,6 +19,7 @@ import datetime as dt
 # global variables
 path_data = '../data_observer/'
 path_features = '../featuresPerPosition/' # file path folder containing the features files
+point_click = tuple() # holds the location of the latest click on line in plot
 
 
 def main():
@@ -189,6 +190,7 @@ def plot_features(features):
     plt.gca().xaxis.set_major_formatter(myFmt)
     fig.canvas.callbacks.connect('pick_event', on_pick)
     plt.show()
+    print(point_click)
     
 def on_pick(event):
     thisline  = event.artist
@@ -201,7 +203,8 @@ def on_pick(event):
     print('x, y of mouse: {:.2f},{:.2f}'.format(xmouse, ymouse))
     print('Data point:', x[ind[0]], y[ind[0]])
     print()
-    return x[ind[0]], y[ind[0]]
+    global point_click
+    point_click = (x[ind[0]], y[ind[0]])
 
 def nearest(items, pivot):
     nearest = min(items, key=lambda x: abs(x - pivot))
