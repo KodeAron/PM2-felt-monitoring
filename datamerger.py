@@ -20,7 +20,7 @@ def main():
     df_observer = observer.load_data(positions = ['P001F'], timeperiod = '201027-210221')
     df_protak = protak.load_data()
     # print(df_protak.columns)
-    plotVibNLogg(df_observer,df_protak)
+    plotVibNLogg(df_observer[0]['featuresDF'],df_protak)
     print(df_observer)
     # doublePlot([df_observer,df_protak], ['RMS','KURT'],['trimproblem'])#,'massakladd'
 
@@ -35,14 +35,14 @@ def plotVibNLogg(df_observer, df_protak):
     # log scale for axis Y of the first subplot
     # ax0.set_yscale("log")
     line0, = ax0.plot(df_observer.Datetime, df_observer.RMS, color='r', label="RMS")
-    line2, = ax0.plot(df_observer.Datetime, df_observer.Kurtosis, color='g')
+    line1, = ax0.plot(df_observer.Datetime, df_observer.KURT, color='g', label="kurtosis")
     
 
     # the second subplot
     # shared axis X
     ax1 = plt.subplot(gs[1], sharex = ax0)
     ptak_dates=df_protak.STARTDATE[500:-1]
-    line1, = ax1.plot(ptak_dates, np.ones(len(ptak_dates)),'*', color='b')
+    line2, = ax1.plot(ptak_dates, np.ones(len(ptak_dates)),'*', color='b',label='trimproblem')
     # myFmt = mdates.DateFormatter('%d/%m %H:%M') # select format of datetime
     # plt.ax0.xaxis.set_major_formatter(myFmt)
     plt.setp(ax0.get_xticklabels(), visible=False)
@@ -54,13 +54,14 @@ def plotVibNLogg(df_observer, df_protak):
     ax1.xaxis.set_major_formatter(myFmt)
 
     # put legend on first subplot
-    ax0.legend((line0, line2, line1), ('rms', 'kurtosis','logposts'), loc='upper left')
+    ax0.legend((line0, line1, line2), (line0.get_label(), line1.get_label(),'trimproblem'),loc='upper left') #
 
     # remove vertical gap between subplots
     plt.subplots_adjust(hspace=.0)
     plt.show()
 
-def doublePlot(df_list, plt1items, plt2items):fig = plt.figure()
+def doublePlot(df_list, plt1items, plt2items):
+    fig = plt.figure()
     # set height ratios for subplots
     gs = gridspec.GridSpec(2, 1, height_ratios=[2, 1]) 
     # the first subplot
