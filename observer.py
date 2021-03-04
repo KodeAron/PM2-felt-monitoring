@@ -117,6 +117,21 @@ def read_UFF(filename):
     data = uff_file.read_sets()
     return data
 
+def features_dataframe(data):
+    # rms, kurtosis
+    featuresDF = pd.DataFrame(columns=['Datetime', 'RMS', 'KURT'])#,'x','data'])
+
+    for i in range(len(data)):
+        val_rms = np.sqrt(np.mean(data[i]['data']**2))
+        val_kurtosis = spstats.kurtosis(np.abs(data[i]['data']))
+        # save the calculated features in dataframe. Get datetime at id3 in data
+        featuresDF = featuresDF.append({'Datetime':data[i]['id3'], 
+            'RMS':val_rms, 'KURT':val_kurtosis},#, 'x':data[i]['x'], 'data':data[i]['data']},
+            ignore_index=True)
+
+    featuresDF['Datetime'] = pd.to_datetime(featuresDF['Datetime'], format='%d-%m-%Y %H:%M:%S')
+    return featuresDF
+
 def plot_signal(location, datestring):
 # plot signal by specifying which sensor/file and what date
 # datestring as 'DD-MM-YYYY'
@@ -140,12 +155,15 @@ def plot_signal(location, datestring):
         print(path_data)
 
 def plot_signal_from_data(data, index):
-    plt.plot(data[index]['x'], data[index]['data'])
+    fig, ax = plt.subplots()
+    tolerance = 5 # points
+    ax.plot(data[index]['x'], data[index]['data'],'b-', label='acceleration',picker=tolerance)
     plt.xlabel('Time [s]')
     plt.ylabel('Acceleration [g]')
     # plt.xlim([0,10])
     plt.title(data[index]['id3'])
     print(data[index])
+    fig.canvas.callbacks.connect('pick_event', on_pick)
     plt.show()
 
 def plot_features(features):
@@ -165,21 +183,18 @@ def plot_features(features):
     myFmt = mdates.DateFormatter('%d/%m') # select format of datetime
     plt.gca().xaxis.set_major_formatter(myFmt)
     plt.show()
-
-def features_dataframe(data):
-    # rms, kurtosis
-    featuresDF = pd.DataFrame(columns=['Datetime', 'RMS', 'KURT'])#,'x','data'])
-
-    for i in range(len(data)):
-        val_rms = np.sqrt(np.mean(data[i]['data']**2))
-        val_kurtosis = spstats.kurtosis(np.abs(data[i]['data']))
-        # save the calculated features in dataframe. Get datetime at id3 in data
-        featuresDF = featuresDF.append({'Datetime':data[i]['id3'], 
-            'RMS':val_rms, 'KURT':val_kurtosis},#, 'x':data[i]['x'], 'data':data[i]['data']},
-            ignore_index=True)
-
-    featuresDF['Datetime'] = pd.to_datetime(featuresDF['Datetime'], format='%d-%m-%Y %H:%M:%S')
-    return featuresDF
+    
+def on_pick(event):
+    artist = event.artist
+    xmouse, ymouse = event.mouseevent.xdata, event.mouseevent.ydata
+    x, y = artist.get_xdata(), artist.get_ydata()
+    ind = event.ind
+    print('Artist picked:', event.artist)
+    print('{} vertices picked'.format(len(ind)))
+    print('Pick between vertices {} and {}'.format(min(ind), max(ind)+1))
+    print('x, y of mouse: {:.2f},{:.2f}'.format(xmouse, ymouse))
+    print('Data point:', x[ind[0]], y[ind[0]])
+    print()
 
 
 if __name__ == '__main__':
