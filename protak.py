@@ -11,12 +11,12 @@ import numpy as np
 
 def main():
     filename = '../data_protak/ProTAK PM2 Pressektion 201001-210228.xlsx'
-    df = readData()
+    df = load_data()
     # print(df[df.REASONDESCRIPTION=='Trimproblem'])
-    booleanDatePlot(df)
+    boolean_date_plot(df)
 
 
-def loadData(filename='../data_protak/ProTAK PM2 Pressektion 201001-210228.xlsx',
+def load_data(filename='../data_protak/ProTAK PM2 Pressektion 201001-210228.xlsx',
     reasonfilter=['Trimproblem']):
     
     # read operation data from spreadsheet and return as dataframe
@@ -31,7 +31,7 @@ def loadData(filename='../data_protak/ProTAK PM2 Pressektion 201001-210228.xlsx'
     df_trim['ENDDATE'] = pd.to_datetime(df_trim['ENDDATE'], format='%d-%m-%Y %H:%M:%S')
     return df_trim
     
-def booleanDatePlot(dataframe):
+def boolean_date_plot(dataframe):
     # df_trim= dataframe.set_index(['REASONDESCRIPTION'],\
     #     drop=True).loc['Trimproblem'].copy() 
     plt.plot(dataframe.STARTDATE, np.ones(len(dataframe.STARTDATE)),'*', label="")
@@ -42,11 +42,11 @@ def booleanDatePlot(dataframe):
 # def plotData(dataframe):
 #     pass
 
-def checkDatetimeForProblem(dataframe,datetime):
+def check_datetime_for_problem(dataframe,datetime):
     # check if specific point in time had any problem
     # return boolean value and REASONDESCRIPTION
 
-    return problemBool, reasondescription
+    return problem_bool, reasondescription
 
 if __name__ == '__main__':
     main()
