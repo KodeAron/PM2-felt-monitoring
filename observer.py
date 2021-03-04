@@ -24,22 +24,22 @@ point_click = tuple() # holds the location of the latest click on line in plot
 
 def main():
     position = 'P001F'
-    interval = '201027-210221'
+    timeperiod = '201027-210221'
     # testlist = convert_UFFs('201027-210221')
-    # df = UFFfile_to_featuresDF(position,interval)
-    df = load_data([position],interval)
+    # df = UFFfile_to_featuresDF(position,timeperiod)
+    df = load_data([position],timeperiod)
     # print(df)
     date = dt.datetime(2020,12,5,12)
     # datetime_list = [dt.datetime(2020,11,5,6,0), dt.datetime(2020,12,3,15,15),dt.datetime(2020,12,7,0,15)]
-    plot_features(df)
+    plot_features(df[0])
     
-def load_data(sensorPositions=[],timePeriod=''):
+def load_data(sensorPositions=[],timeperiod=''):
 # Load data from files if available. Return list of dataframes, one for each position.
     listOfDataframes = []
     # search through folder for filenames
     dirs = os.scandir(path_features)
     # if no sensorPositions or timePeriods then convert all files in folder
-    if len(sensorPositions)==0 and len(timePeriod)==0:
+    if len(sensorPositions)==0 and len(timeperiod)==0:
         for entry in dirs:
             print(entry.name) # testing
             #load dataframe from file
@@ -49,11 +49,11 @@ def load_data(sensorPositions=[],timePeriod=''):
         not_found_sensors = sensorPositions # list with sensors not found in folder
         for entry in dirs:
             sensor_position, time_period = split_filename(entry.name)
-            if (sensor_position in not_found_sensors and (len(timePeriod)==0 or timePeriod==time_period)):
+            if (sensor_position in not_found_sensors and (len(timeperiod)==0 or timeperiod ==time_period)):
                 not_found_sensors.remove(sensor_position)
                 read_pickle_to_dataframe(listOfDataframes,entry.name)
                 converted_files.append(entry.name)
-            elif (len(sensorPositions)==0 and timePeriod==time_period):
+            elif (len(sensorPositions)==0 and timeperiod==time_period):
                 read_pickle_to_dataframe(listOfDataframes,entry.name)
                 converted_files.append(entry.name)
         print('Not in folder: ',end='') 
@@ -65,10 +65,10 @@ def load_data(sensorPositions=[],timePeriod=''):
     
 def read_pickle_to_dataframe(listOfDataframes,filename):
     df = pd.read_pickle(path_features + filename)
-    position,interval = split_filename(filename)
-    listOfDataframes.append({'featuresDF':df, 'position':position, 'interval':interval})
+    position,timeperiod = split_filename(filename)
+    listOfDataframes.append({'featuresDF':df, 'position':position, 'timeperiod':timeperiod})
 
-def convert_UFFs(timePeriod=''):
+def convert_UFFs(timeperiod=''):
 # load UFF, convert to dataframe (with only interesting fields) and save to files
     # search through folder for filenames
     with os.scandir(path_data) as dirs:
@@ -77,11 +77,11 @@ def convert_UFFs(timePeriod=''):
             # exclued everything that is not UFF file
             if entry.name.endswith('.UFF') and entry.is_file() :
                 # only convert files in specified time period or if none is specified
-                if (len(timePeriod)==0 or timePeriod==time_period):
+                if (len(timeperiod)==0 or timeperiod==time_period):
                     UFFfile_to_featuresfile(entry.name)
                     print('Converted:',end=' ')
                     print(entry.name) # print filename for loaded file
-                else: #(len(timePeriod)!=0 and timePeriod!=time_period):
+                else: #(len(timeperiod)!=0 and timeperiod!=time_period):
                     print('Outside specified time period:',end=' ')
                     print(entry.name)
     
@@ -92,25 +92,25 @@ def split_filename(filename):
     time_period = splitted[-1] # last element
     return sensor_position, time_period
 
-def UFFfile_to_featuresfile(sensPos_or_filename, timePeriod=''):
+def UFFfile_to_featuresfile(sensPos_or_filename, timeperiod=''):
 # read an UFF file, create features dataframe and save 
     in1len = len(sensPos_or_filename)
-    if in1len<5 or (in1len==5 and len(timePeriod)!=13):
-        # return error code if to short or missing timePeriod when sensorPosition is given
+    if in1len<5 or (in1len==5 and len(timeperiod)!=13):
+        # return error code if to short or missing timeperiod when sensorPosition is given
         featuresDF=-1     
     else:
         if in1len>5:
         # if sensorPosition is long then treat as filename
-            sensorPosition,timePeriod = split_filename(sensPos_or_filename)
+            sensorPosition,timeperiod = split_filename(sensPos_or_filename)
         else:
             sensPos_or_filename = sensorPosition
-        featuresDF = UFFfile_to_featuresDF(sensorPosition, timePeriod)
-        result_filename = path_features + sensorPosition + '_' + timePeriod
+        featuresDF = UFFfile_to_featuresDF(sensorPosition, timeperiod)
+        result_filename = path_features + sensorPosition + '_' + timeperiod
         featuresDF.to_pickle(result_filename)
     return featuresDF
 
-def UFFfile_to_featuresDF(sensorPosition, timePeriod):
-    data = UFFfile_to_UFFdata(path_data + sensorPosition + '_A_' + timePeriod + '.uff')
+def UFFfile_to_featuresDF(sensorPosition, timeperiod):
+    data = UFFfile_to_UFFdata(path_data + sensorPosition + '_A_' + timeperiod + '.uff')
     featuresDF = UFFdata_to_featuresDF(data)
     return featuresDF
 
@@ -173,9 +173,9 @@ def plot_signal_from_data(data, index):
 def plot_features(features):
     fig, ax = plt.subplots()
     tolerance = 5 # points
-    if type(features) is list and len(features):
-    # unpack if features is list (containing filename/sensorPosition)
-        features = features[0]['featuresDF']
+    if type(features) is dict and len(features):
+    # unpack if features is dict (containing featuresDF, position and timeperiod)
+        features = features['featuresDF']
     if type(features) is pd.DataFrame:
         Datetime = features.Datetime
         RMS = features.RMS
@@ -190,7 +190,6 @@ def plot_features(features):
     plt.gca().xaxis.set_major_formatter(myFmt)
     fig.canvas.callbacks.connect('pick_event', on_pick)
     plt.show()
-    print(point_click)
     
 def on_pick(event):
     thisline  = event.artist
