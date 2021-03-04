@@ -16,10 +16,12 @@ import pandas as pd
 import os
 import datetime as dt
 
+import generaltools as gtol
+
 # global variables
 path_data = '../data_observer/'
 path_features = '../featuresPerPosition/' # file path folder containing the features files
-point_click = tuple() # holds the location of the latest click on line in plot
+# point_click = tuple() # holds the location of the latest click on line in plot
 
 
 def main():
@@ -32,7 +34,7 @@ def main():
     # date = dt.datetime(2020,12,5,12)
     # datetime_list = [dt.datetime(2020,11,5,6,0), dt.datetime(2020,12,3,15,15),dt.datetime(2020,12,7,0,15)]
     plot_features(df[0])
-    clicked_time = pd.to_datetime(point_click[0])
+    clicked_time = pd.to_datetime(gtol.point_click[0])
     print(df[0]['featuresDF'].Datetime[0] == clicked_time)
     # print(df[0]['featuresDF']['Datetime'].iloc[0])
     
@@ -191,27 +193,8 @@ def plot_features(features):
     ax.plot(Datetime, KURT,'r-', label="kurtosis",picker=True)
     myFmt = mdates.DateFormatter('%d/%m') # select format of datetime
     plt.gca().xaxis.set_major_formatter(myFmt)
-    fig.canvas.callbacks.connect('pick_event', on_pick)
+    fig.canvas.callbacks.connect('pick_event', gtol.on_pick)
     plt.show()
-    
-def on_pick(event):
-    thisline  = event.artist
-    xmouse, ymouse = event.mouseevent.xdata, event.mouseevent.ydata
-    x, y = thisline .get_xdata(), thisline.get_ydata()
-    ind = event.ind
-    print('Artist picked:', thisline)
-    print('{} vertices picked'.format(len(ind)))
-    print('Pick between vertices {} and {}'.format(min(ind), max(ind)+1))
-    print('x, y of mouse: {:.2f},{:.2f}'.format(xmouse, ymouse))
-    print('Data point:', x[ind[0]], y[ind[0]])
-    print()
-    global point_click
-    point_click = (x[ind[0]], y[ind[0]])
-
-def nearest(items, pivot):
-    nearest = min(items, key=lambda x: abs(x - pivot))
-    timedelta = abs(nearest - pivot)
-    return nearest, timedelta
 
 if __name__ == '__main__':
     main()
