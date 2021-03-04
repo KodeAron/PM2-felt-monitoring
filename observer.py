@@ -22,17 +22,20 @@ path_features = '../featuresPerPosition/' # file path folder containing the feat
 
 
 def main():
-    # sensorPosition = 'P001F'
-    # timePeriod = '201027-210221'
+    position = 'P001F'
+    interval = '201027-210221'
     # testlist = convert_UFFs('201027-210221')
-    UFFdata = 
-    df = UFFdata_to_featuresDF(UFFdata)
+    df = UFFfile_to_featuresDF(position,interval)
     date = dt.datetime(2020,12,5,12)
     # datetime_list = [dt.datetime(2020,11,5,6,0), dt.datetime(2020,12,3,15,15),dt.datetime(2020,12,7,0,15)]
     # plot_signal('testar','')
     nearest_date, date_diff = nearest(df.Datetime,date)
     print(nearest_date)
     print(date_diff)
+    boolean = df['Datetime'] == nearest_date
+    print(boolean)
+    print(df.loc[boolean])
+
     
 def load_data(sensorPositions=[],timePeriod=''):
 # Load data from files if available. Return list of dataframes, one for each position.
@@ -121,15 +124,15 @@ def UFFfile_to_UFFdata(filename):
     UFFdata = uff_file.read_sets()
     return UFFdata
 
-def UFFdata_to_featuresDF(UFF_data):
+def UFFdata_to_featuresDF(UFFdata):
     # rms, kurtosis
     featuresDF = pd.DataFrame(columns=['Datetime', 'RMS', 'KURT'])#,'x','data'])
 
-    for i in range(len(data)):
-        val_rms = np.sqrt(np.mean(data[i]['data']**2))
-        val_kurtosis = spstats.kurtosis(np.abs(data[i]['data']))
+    for i in range(len(UFFdata)):
+        val_rms = np.sqrt(np.mean(UFFdata[i]['data']**2))
+        val_kurtosis = spstats.kurtosis(np.abs(UFFdata[i]['data']))
         # save the calculated features in dataframe. Get datetime at id3 in data
-        featuresDF = featuresDF.append({'Datetime':data[i]['id3'], 
+        featuresDF = featuresDF.append({'Datetime':UFFdata[i]['id3'], 
             'RMS':val_rms, 'KURT':val_kurtosis},#, 'x':data[i]['x'], 'data':data[i]['data']},
             ignore_index=True)
 
