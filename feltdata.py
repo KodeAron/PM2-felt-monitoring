@@ -8,14 +8,19 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import pandas as pd
 
+path_data = '../data_felt/'
+filename_data = 'Press1T_felt_log.xlsx'
+fullpath_data = path_data + filename_data
+
 def main():
-    filename = '../data_felt/' + 'Filtbyten.xlsx'
+    df = load_data()
+    print(df.columns)
 
 
-
-def readFeltData(filename='../data_felt/Filtbyten.xlsx')
+def load_data(filename=fullpath_data):
     # extract felt data from spreadsheet and return as dataframe
-    return # dataframe
+    df = pd.read_excel(filename)
+    return df
 
 if __name__ == '__main__':
     main()
