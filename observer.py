@@ -183,19 +183,19 @@ def plot_features(features):
         print('Unknown format for features')
         return
     # plt.plot(features.Datetime.to_pydatetime(),features.RMS,'b-', label="RMS")
-    ax.plot(Datetime, RMS,'b-', label="rms",picker=tolerance)
-    ax.plot(Datetime, KURT,'r-', label="kurtosis",picker=tolerance)
+    ax.plot(Datetime, RMS,'b-', label="rms",picker=True)
+    ax.plot(Datetime, KURT,'r-', label="kurtosis",picker=True)
     myFmt = mdates.DateFormatter('%d/%m') # select format of datetime
     plt.gca().xaxis.set_major_formatter(myFmt)
     fig.canvas.callbacks.connect('pick_event', on_pick)
     plt.show()
     
 def on_pick(event):
-    artist = event.artist
+    thisline  = event.artist
     xmouse, ymouse = event.mouseevent.xdata, event.mouseevent.ydata
-    x, y = artist.get_xdata(), artist.get_ydata()
+    x, y = thisline .get_xdata(), thisline.get_ydata()
     ind = event.ind
-    print('Artist picked:', event.artist)
+    print('Artist picked:', thisline)
     print('{} vertices picked'.format(len(ind)))
     print('Pick between vertices {} and {}'.format(min(ind), max(ind)+1))
     print('x, y of mouse: {:.2f},{:.2f}'.format(xmouse, ymouse))
