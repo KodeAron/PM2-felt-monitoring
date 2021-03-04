@@ -25,9 +25,9 @@ def main():
     position = 'P001F'
     interval = '201027-210221'
     # testlist = convert_UFFs('201027-210221')
-    df = UFFfile_to_featuresDF(position,interval)
-    # df = load_data([position],interval)
-    print(df)
+    # df = UFFfile_to_featuresDF(position,interval)
+    df = load_data([position],interval)
+    # print(df)
     date = dt.datetime(2020,12,5,12)
     # datetime_list = [dt.datetime(2020,11,5,6,0), dt.datetime(2020,12,3,15,15),dt.datetime(2020,12,7,0,15)]
     plot_features(df)
@@ -64,7 +64,8 @@ def load_data(sensorPositions=[],timePeriod=''):
     
 def read_pickle_to_dataframe(listOfDataframes,filename):
     df = pd.read_pickle(path_features + filename)
-    listOfDataframes.append([df,filename])
+    position,interval = split_filename(filename)
+    listOfDataframes.append({'featuresDF':df, 'position':position, 'interval':interval})
 
 def convert_UFFs(timePeriod=''):
 # load UFF, convert to dataframe (with only interesting fields) and save to files
@@ -173,18 +174,17 @@ def plot_features(features):
     tolerance = 5 # points
     if type(features) is list and len(features):
     # unpack if features is list (containing filename/sensorPosition)
-        features = features[0]
-        print(features)
+        features = features[0]['featuresDF']
     if type(features) is pd.DataFrame:
-        time = features.Datetime
+        Datetime = features.Datetime
         RMS = features.RMS
         KURT = features.KURT
     else:
         print('Unknown format for features')
         return
     # plt.plot(features.Datetime.to_pydatetime(),features.RMS,'b-', label="RMS")
-    ax.plot(time, RMS,'b-', label="rms",picker=tolerance)
-    ax.plot(time, KURT,'r-', label="kurtosis",picker=tolerance)
+    ax.plot(Datetime, RMS,'b-', label="rms",picker=tolerance)
+    ax.plot(Datetime, KURT,'r-', label="kurtosis",picker=tolerance)
     myFmt = mdates.DateFormatter('%d/%m') # select format of datetime
     plt.gca().xaxis.set_major_formatter(myFmt)
     fig.canvas.callbacks.connect('pick_event', on_pick)
