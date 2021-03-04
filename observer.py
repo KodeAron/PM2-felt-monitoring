@@ -32,32 +32,33 @@ def main():
     date = dt.datetime(2020,12,5,12)
     # datetime_list = [dt.datetime(2020,11,5,6,0), dt.datetime(2020,12,3,15,15),dt.datetime(2020,12,7,0,15)]
     plot_features(df[0])
+    print(type(df[0]['featuresDF'].Datetime[0]))
     
-def load_data(sensorPositions=[],timeperiod=''):
+def load_data(positions=[],timeperiod=''):
 # Load data from files if available. Return list of dataframes, one for each position.
     listOfDataframes = []
     # search through folder for filenames
     dirs = os.scandir(path_features)
-    # if no sensorPositions or timePeriods then convert all files in folder
-    if len(sensorPositions)==0 and len(timeperiod)==0:
+    # if no positions or timeperiod then convert all files in folder
+    if len(positions)==0 and len(timeperiod)==0:
         for entry in dirs:
             print(entry.name) # testing
             #load dataframe from file
             read_pickle_to_dataframe(listOfDataframes,path_features,entry.name)
-    else: # else check if specified sensorPositions are available in folder
+    else: # else check if specified positions are available in folder
         converted_files=[] # save files that are converted
-        not_found_sensors = sensorPositions # list with sensors not found in folder
+        not_found_sensors = positions # list with sensors not found in folder
         for entry in dirs:
             sensor_position, time_period = split_filename(entry.name)
             if (sensor_position in not_found_sensors and (len(timeperiod)==0 or timeperiod ==time_period)):
                 not_found_sensors.remove(sensor_position)
                 read_pickle_to_dataframe(listOfDataframes,entry.name)
                 converted_files.append(entry.name)
-            elif (len(sensorPositions)==0 and timeperiod==time_period):
+            elif (len(positions)==0 and timeperiod==time_period):
                 read_pickle_to_dataframe(listOfDataframes,entry.name)
                 converted_files.append(entry.name)
         print('Not in folder: ',end='') 
-        print(sensorPositions)
+        print(positions)
         print('Loaded files: ',end='')
         print(converted_files)
 
@@ -96,21 +97,21 @@ def UFFfile_to_featuresfile(sensPos_or_filename, timeperiod=''):
 # read an UFF file, create features dataframe and save 
     in1len = len(sensPos_or_filename)
     if in1len<5 or (in1len==5 and len(timeperiod)!=13):
-        # return error code if to short or missing timeperiod when sensorPosition is given
+        # return error code if to short or missing timeperiod when position is given
         featuresDF=-1     
     else:
         if in1len>5:
-        # if sensorPosition is long then treat as filename
-            sensorPosition,timeperiod = split_filename(sensPos_or_filename)
+        # if position is long then treat as filename
+            position,timeperiod = split_filename(sensPos_or_filename)
         else:
-            sensPos_or_filename = sensorPosition
-        featuresDF = UFFfile_to_featuresDF(sensorPosition, timeperiod)
-        result_filename = path_features + sensorPosition + '_' + timeperiod
+            sensPos_or_filename = position
+        featuresDF = UFFfile_to_featuresDF(position, timeperiod)
+        result_filename = path_features + position + '_' + timeperiod
         featuresDF.to_pickle(result_filename)
     return featuresDF
 
-def UFFfile_to_featuresDF(sensorPosition, timeperiod):
-    data = UFFfile_to_UFFdata(path_data + sensorPosition + '_A_' + timeperiod + '.uff')
+def UFFfile_to_featuresDF(position, timeperiod):
+    data = UFFfile_to_UFFdata(path_data + position + '_A_' + timeperiod + '.uff')
     featuresDF = UFFdata_to_featuresDF(data)
     return featuresDF
 
@@ -183,7 +184,7 @@ def plot_features(features):
     else:
         print('Unknown format for features')
         return
-    # plt.plot(features.Datetime.to_pydatetime(),features.RMS,'b-', label="RMS")
+    # ax.plot(Datetime.dt.to_pydatetime(),RMS,'b-', label="RMS")
     ax.plot(Datetime, RMS,'b-', label="rms",picker=True)
     ax.plot(Datetime, KURT,'r-', label="kurtosis",picker=True)
     myFmt = mdates.DateFormatter('%d/%m') # select format of datetime
