@@ -26,16 +26,11 @@ def main():
     interval = '201027-210221'
     # testlist = convert_UFFs('201027-210221')
     df = UFFfile_to_featuresDF(position,interval)
+    # df = load_data([position],interval)
+    print(df)
     date = dt.datetime(2020,12,5,12)
     # datetime_list = [dt.datetime(2020,11,5,6,0), dt.datetime(2020,12,3,15,15),dt.datetime(2020,12,7,0,15)]
-    # plot_signal('testar','')
-    nearest_date, date_diff = nearest(df.Datetime,date)
-    print(nearest_date)
-    print(date_diff)
-    boolean = df['Datetime'] == nearest_date
-    print(boolean)
-    print(df.loc[boolean])
-
+    plot_features(df)
     
 def load_data(sensorPositions=[],timePeriod=''):
 # Load data from files if available. Return list of dataframes, one for each position.
@@ -169,14 +164,17 @@ def plot_signal_from_data(data, index):
     plt.ylabel('Acceleration [g]')
     # plt.xlim([0,10])
     plt.title(data[index]['id3'])
-    print(data[index])
+    # print(data[index])
     fig.canvas.callbacks.connect('pick_event', on_pick)
     plt.show()
 
 def plot_features(features):
+    fig, ax = plt.subplots()
+    tolerance = 5 # points
     if type(features) is list and len(features):
     # unpack if features is list (containing filename/sensorPosition)
         features = features[0]
+        print(features)
     if type(features) is pd.DataFrame:
         time = features.Datetime
         RMS = features.RMS
@@ -185,10 +183,11 @@ def plot_features(features):
         print('Unknown format for features')
         return
     # plt.plot(features.Datetime.to_pydatetime(),features.RMS,'b-', label="RMS")
-    plt.plot(time, RMS,'b-', label="rms")
-    plt.plot(time, KURT,'r-', label="kurtosis")
+    ax.plot(time, RMS,'b-', label="rms",picker=tolerance)
+    ax.plot(time, KURT,'r-', label="kurtosis",picker=tolerance)
     myFmt = mdates.DateFormatter('%d/%m') # select format of datetime
     plt.gca().xaxis.set_major_formatter(myFmt)
+    fig.canvas.callbacks.connect('pick_event', on_pick)
     plt.show()
     
 def on_pick(event):
@@ -202,12 +201,7 @@ def on_pick(event):
     print('x, y of mouse: {:.2f},{:.2f}'.format(xmouse, ymouse))
     print('Data point:', x[ind[0]], y[ind[0]])
     print()
-
-def closest_to_date(collection_of_dates, datetime):
-    if type(collection_of_dates)==list:
-        pass
-    else:
-        print('Unknown type')
+    return x[ind[0]], y[ind[0]]
 
 def nearest(items, pivot):
     nearest = min(items, key=lambda x: abs(x - pivot))
