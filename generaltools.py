@@ -13,6 +13,10 @@ def nearest(items, pivot):
     timedelta = abs(nearest - pivot)
     return nearest, timedelta
 
+def is_date_between(check_date, first_date, last_date):
+    pass
+    return # isbetween # true if check_date lies between first_date and last_date
+
 def count_breaches(list_of_values, lower_threshold=-math.inf, upper_threshold=math.inf):
     nBreaches_lower = sum(x < lower_threshold for x in list_of_values)
     nBreaches_upper = sum(x > upper_threshold for x in list_of_values)
