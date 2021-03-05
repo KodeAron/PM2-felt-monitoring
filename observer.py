@@ -34,8 +34,11 @@ def main():
     # date = dt.datetime(2020,12,5,12)
     # datetime_list = [dt.datetime(2020,11,5,6,0), dt.datetime(2020,12,3,15,15),dt.datetime(2020,12,7,0,15)]
     plot_features(df[0])
-    clicked_time = pd.to_datetime(gtol.point_click[0])
-    print(df[0]['featuresDF'].Datetime[0] == clicked_time)
+    if len(gtol.point_click) > 0:
+        clicked_time = gtol.point_click[0]
+        print('clicked time point ',end='')
+        print(clicked_time)
+        print(df[0]['featuresDF'].Datetime[0] == clicked_time)
     # print(df[0]['featuresDF']['Datetime'].iloc[0])
     
 def load_data(positions=[],timeperiod=''):
