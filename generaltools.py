@@ -7,6 +7,13 @@ def nearest(items, pivot):
     timedelta = abs(nearest - pivot)
     return nearest, timedelta
 
+def count_breaches(list_of_values, lower_threshold, upper_threshold):
+    lowerbool = list_of_values < lower_threshold
+    nBreaches_lower = sum(lowerbool)
+    upperbool = list_of_values > upper_threshold
+    nBreaches_lower = sum(upperbool)
+    return *zip(nBreaches_lower, nBreaches_upper) # vet inte riktigt vad zip gör...
+
 def on_pick(event):
     thisline  = event.artist
     xmouse, ymouse = event.mouseevent.xdata, event.mouseevent.ydata
