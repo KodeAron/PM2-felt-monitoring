@@ -40,6 +40,8 @@ def main():
         print(clicked_time)
         print(df[0]['featuresDF'].Datetime[0] == clicked_time)
     # print(df[0]['featuresDF']['Datetime'].iloc[0])
+    print(df[0]['featuresDF']['KURT'])
+    print(gtol.count_breaches(df[0]['featuresDF']['KURT'],-0.5,2))
     
 def load_data(positions=[],timeperiod=''):
 # Load data from files if available. Return list of dataframes, one for each position.
