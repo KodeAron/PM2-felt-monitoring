@@ -15,15 +15,15 @@ fullpath_data = path_data + filename_data
 def main():
     df = load_data()
     print(df.columns)
-    print(df)
+    # print(df)
     plot_feltchange(df)
 
 def load_data(filename=fullpath_data,recalculate_runtime=True):
 # extract felt data from spreadsheet and return as dataframe
     df = pd.read_excel(filename)
     # df.convert_dtypes()
-    df['INSTALLED'] = pd.to_datetime(df['INSTALLED']) #, format='%Y-%m-%d')
-    df['REMOVED'] = pd.to_datetime(df['REMOVED'])
+    df['INSTALLED'] = pd.to_datetime(df['INSTALLED']).dt.date #, format='%Y-%m-%d')
+    df['REMOVED'] = pd.to_datetime(df['REMOVED']).dt.date
     if recalculate_runtime:
         df['RUNTIME']=df['REMOVED']-df['INSTALLED']
     return df
