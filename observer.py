@@ -29,19 +29,21 @@ def main():
     timeperiod = '201027-210221'
     # testlist = convert_UFFs('201027-210221')
     # df = UFFfile_to_featuresDF(position,timeperiod)
-    df = load_data([position],timeperiod)
+    # df = load_data([position],timeperiod)
     # print(df)
     # date = dt.datetime(2020,12,5,12)
     # datetime_list = [dt.datetime(2020,11,5,6,0), dt.datetime(2020,12,3,15,15),dt.datetime(2020,12,7,0,15)]
-    plot_features(df[0])
-    if len(gtol.point_click) > 0:
-        clicked_time = gtol.point_click[0]
-        print('clicked time point ',end='')
-        print(clicked_time)
-        print(df[0]['featuresDF'].Datetime[0] == clicked_time)
+    # plot_features(df[0])
+    # if len(gtol.point_click) > 0:
+    #     clicked_time = gtol.point_click[0]
+    #     print('clicked time point ',end='')
+    #     print(clicked_time)
+    #     print(df[0]['featuresDF'].Datetime[0] == clicked_time)
     # print(df[0]['featuresDF']['Datetime'].iloc[0])
-    print(df[0]['featuresDF']['KURT'])
-    print(gtol.count_breaches(df[0]['featuresDF']['KURT'],-0.5,2))
+    # print(df[0]['featuresDF']['KURT'])
+    # print(gtol.count_breaches(df[0]['featuresDF']['KURT'],-0.5,2))
+    data=UFFfile_to_UFFdata(position + '_A_' + timeperiod + '.uff')
+    print(measurements_when(data))
     
 def load_data(positions=[],timeperiod=''):
 # Load data from files if available. Return list of dataframes, one for each position.
@@ -200,6 +202,14 @@ def plot_features(features):
     plt.gca().xaxis.set_major_formatter(myFmt)
     fig.canvas.callbacks.connect('pick_event', gtol.on_pick)
     plt.show()
+
+def measurements_when(UFFdata):
+    # extract all date/times for when the measurements were done
+    datetime_list = []
+    for item in UFFdata:
+        datetime_list.append(item['id3'])
+
+    return datetime_list
 
 if __name__ == '__main__':
     main()
