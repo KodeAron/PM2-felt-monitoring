@@ -48,14 +48,11 @@ def datetime64_to_datetime(np_datetime64):
     print(datetime)
     return datetime
     
-# def onpick(event):
-#     thisline = event.artist
-#     xdata = thisline.get_xdata()
-#     ydata = thisline.get_ydata()
-#     ind = event.ind
-#     print('onpick points:', *zip(xdata[ind], ydata[ind]))
-#     global point_click
-#     point_click = (xdata[ind], ydata[ind])
+def all_values_from_key(listofdicts, keyword)
+    value_list = []
+    for item in listofdicts:
+        value_list.append(item[keyword])
+    return value_list
 
 if __name__ == '__main__':
     main()
