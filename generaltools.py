@@ -48,11 +48,31 @@ def datetime64_to_datetime(np_datetime64):
     print(datetime)
     return datetime
     
-def all_values_from_key(listofdicts, keyword)
+def all_values_from_key(listofdicts, keyword):
     value_list = []
     for item in listofdicts:
         value_list.append(item[keyword])
     return value_list
+
+def compare_dicts(dict1, dict2, find_similarities=False):
+    """Compare two dictionaries.
+    Input two dictionaries to compare. 
+    find_similarities: look for similiarities if True, look for differences if False.
+    """
+    k1 = set(dict1.keys())
+    k2 = set(dict2.keys())
+    common_keys = set(k1).intersection(set(k2)) # find all keys that appear in both dictionaries
+    if find_similarities:
+        print('Looking for SIMILARITIES between dictionaries')
+        for key in common_keys:
+            if key not in ['x','data'] and dict1[key] == dict2[key] :
+                print (key + ": " + str(dict1[key]) + " matches " + str(dict2[key]))
+    else:
+        print('Looking for DIFFERENCES between dictionaries')
+        for key in common_keys:
+            if key not in ['x','data'] and dict1[key] != dict2[key] :
+                print (key + ": " + str(dict1[key]) + " differs from " + str(dict2[key]))
+
 
 if __name__ == '__main__':
     main()

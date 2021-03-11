@@ -43,7 +43,16 @@ def main():
     # print(df[0]['featuresDF']['KURT'])
     # print(gtol.count_breaches(df[0]['featuresDF']['KURT'],-0.5,2))
     data=UFFfile_to_UFFdata(position + '_A_' + timeperiod + '.uff')
-    print(measurements_when(data))
+    rsp_list = gtol.all_values_from_key(data,'rsp_node')
+    print(rsp_list)
+
+    # print(measurements_when(data))
+    dict1 = extract_UFFdict_from_date(data,'10-02-2021') # 13:00:07
+    dict2 = extract_UFFdict_from_date(data,'11-02-2021') # 12:00:32
+    gtol.compare_dicts(dict1,dict2)
+    dict1 = extract_UFFdict_from_date(data,'06-02-2021') # 13:23:15
+    dict2 = extract_UFFdict_from_date(data,'30-01-2021') # 01:00:32
+    gtol.compare_dicts(dict1,dict2)
     
 def load_data(positions=[],timeperiod=''):
 # Load data from files if available. Return list of dataframes, one for each position.
@@ -208,8 +217,11 @@ def measurements_when(UFFdata):
     datetime_list = []
     for item in UFFdata:
         datetime_list.append(item['id3'])
-
     return datetime_list
+
+def extract_UFFdict_from_date(UFFdata, datestring):
+    index = next((i for i, item in enumerate(UFFdata) if item['id3'].startswith(datestring)), None)
+    return UFFdata[index]
 
 if __name__ == '__main__':
     main()
