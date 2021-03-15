@@ -12,6 +12,7 @@ import pandas as pd
 from matplotlib import gridspec
 import numpy as np
 
+import generaltools as gtol
 import observer
 import protak
 
@@ -21,7 +22,7 @@ def main():
     df_protak = protak.load_data()
     # print(df_protak.columns)
     plotVibNLogg(df_observer[0]['featuresDF'],df_protak)
-    print(df_observer)
+    # print(df_observer)
     # doublePlot([df_observer,df_protak], ['RMS','KURT'],['trimproblem'])#,'massakladd'
 
 def plotVibNLogg(df_observer, df_protak):
@@ -34,15 +35,15 @@ def plotVibNLogg(df_observer, df_protak):
     ax0 = plt.subplot(gs[0])
     # log scale for axis Y of the first subplot
     # ax0.set_yscale("log")
-    line0, = ax0.plot(df_observer.Datetime, df_observer.RMS, color='r', label="RMS")
-    line1, = ax0.plot(df_observer.Datetime, df_observer.KURT, color='g', label="kurtosis")
+    line0, = ax0.plot(df_observer.Datetime, df_observer.RMS, color='r', label="RMS",picker=True)
+    line1, = ax0.plot(df_observer.Datetime, df_observer.KURT, color='g', label="kurtosis",picker=True)
     
 
     # the second subplot
     # shared axis X
     ax1 = plt.subplot(gs[1], sharex = ax0)
     ptak_dates=df_protak.STARTDATE[500:-1]
-    line2, = ax1.plot(ptak_dates, np.ones(len(ptak_dates)),'*', color='b',label='trimproblem')
+    line2, = ax1.plot(ptak_dates, np.ones(len(ptak_dates)),'*', color='b',label='trimproblem',picker=True)
     # myFmt = mdates.DateFormatter('%d/%m %H:%M') # select format of datetime
     # plt.ax0.xaxis.set_major_formatter(myFmt)
     plt.setp(ax0.get_xticklabels(), visible=False)
@@ -55,6 +56,9 @@ def plotVibNLogg(df_observer, df_protak):
 
     # put legend on first subplot
     ax0.legend((line0, line1, line2), (line0.get_label(), line1.get_label(),'trimproblem'),loc='upper left') #
+
+    # connect picker
+    fig.canvas.callbacks.connect('pick_event', gtol.on_pick)
 
     # remove vertical gap between subplots
     plt.subplots_adjust(hspace=.0)
