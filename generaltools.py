@@ -9,7 +9,7 @@ def main():
     # breaches = count_breaches(testlista, upper_threshold= 4)
     # print(breaches)
     datetime_list = [dt.datetime(2020,11,5,6,0), dt.datetime(2020,12,3,15,15),dt.datetime(2020,12,7,0,15)]
-    new_dates = extract_date_list(datetime_list,dt.datetime(2020,12,5))#,dt.datetime(2020,12,8))
+    new_dates = extract_date_list(datetime_list,dt.datetime(2020,11,5))#,dt.datetime(2020,12,8))
     print(new_dates)
 
 def nearest(items, pivot):
@@ -17,9 +17,10 @@ def nearest(items, pivot):
     timedelta = abs(nearest - pivot)
     return nearest, timedelta
 
-def is_date_between(check_date, first_date, last_date):
-    pass
-    return # isbetween # true if check_date lies between first_date and last_date
+def is_date_between(check_date, first_date=None, last_date=None):
+    isbetween = ((first_date==None or (check_date>first_date))\
+        and (last_date==None or (check_date<last_date)))
+    return isbetween # isbetween # true if check_date lies between first_date and last_date
 
 def extract_date_list(list_of_dates, first_date=None, last_date=None):
     ''' extract a list of dates from (ordered) list/series 
@@ -28,8 +29,7 @@ def extract_date_list(list_of_dates, first_date=None, last_date=None):
     '''
     extracted_dates=[]
     for item in list_of_dates:
-        if (first_date==None or (item>first_date))\
-             and (last_date==None or (item<last_date)):
+        if is_date_between(item,first_date,last_date):
             extracted_dates.append(item)
     return extracted_dates
 
