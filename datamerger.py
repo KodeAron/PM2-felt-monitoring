@@ -15,17 +15,19 @@ import numpy as np
 import generaltools as gtol
 import observer
 import protak
+import feltdata
 
 def main():
     # stackOverflowTest()
     df_observer = observer.load_data(positions = ['P001F'], timeperiod = '201027-210221')
     df_protak = protak.load_data()
+    df_felt = feltdata.load_data()
     # print(df_protak.columns)
-    plotVibNLogg(df_observer[0]['featuresDF'],df_protak)
+    plotVibNLogg(df_observer[0]['featuresDF'],df_protak, df_felt)
     # print(df_observer)
     # doublePlot([df_observer,df_protak], ['RMS','KURT'],['trimproblem'])#,'massakladd'
 
-def plotVibNLogg(df_observer, df_protak):
+def plotVibNLogg(df_vibsensor, df_protak, df_felt):
 
     fig = plt.figure()
     # set height ratios for subplots
@@ -35,9 +37,11 @@ def plotVibNLogg(df_observer, df_protak):
     ax0 = plt.subplot(gs[0])
     # log scale for axis Y of the first subplot
     # ax0.set_yscale("log")
-    line0, = ax0.plot(df_observer.Datetime, df_observer.RMS, color='r', label="RMS",picker=True)
-    line1, = ax0.plot(df_observer.Datetime, df_observer.KURT, color='g', label="kurtosis",picker=True)
-    
+    line0, = ax0.plot(df_vibsensor.Datetime, df_vibsensor.RMS, color='r', label="RMS",picker=True)
+    line1, = ax0.plot(df_vibsensor.Datetime, df_vibsensor.KURT, color='g', label="kurtosis",picker=True)
+
+    # felt replacements
+    ax0.vlines(df_felt.INSTALLED, -10, 10, colors='k', linestyles='solid', label='replacements')
 
     # the second subplot
     # shared axis X
