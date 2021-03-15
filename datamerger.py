@@ -19,15 +19,19 @@ import feltdata
 
 def main():
     # stackOverflowTest()
-    df_observer = observer.load_data(positions = ['P001F'], timeperiod = '201027-210221')
+    df_observer = observer.load_data(positions = ['P001D'], timeperiod = '201027-210221')
     df_protak = protak.load_data()
     df_felt = feltdata.load_data()
     # print(df_protak.columns)
-    plotVibNLogg(df_observer[0]['featuresDF'],df_protak, df_felt)
+    plotVibNLogg(df_observer,df_protak, df_felt)
     # print(df_observer)
     # doublePlot([df_observer,df_protak], ['RMS','KURT'],['trimproblem'])#,'massakladd'
 
-def plotVibNLogg(df_vibsensor, df_protak, df_felt):
+def plotVibNLogg(df_observer, df_protak, df_felt):
+
+    obsindex = 0
+    df_vibsensor = df_observer[obsindex]['featuresDF']
+    vibsensor = df_observer[obsindex]['position']
 
     fig = plt.figure()
     # set height ratios for subplots
@@ -40,9 +44,6 @@ def plotVibNLogg(df_vibsensor, df_protak, df_felt):
     line0, = ax0.plot(df_vibsensor.Datetime, df_vibsensor.RMS, color='r', label="RMS",picker=True)
     line1, = ax0.plot(df_vibsensor.Datetime, df_vibsensor.KURT, color='g', label="kurtosis",picker=True)
 
-    # felt replacements
-    ax0.vlines(df_felt.INSTALLED, -10, 10, colors='k', linestyles='solid', label='replacements')
-
     # the second subplot
     # shared axis X
     ax1 = plt.subplot(gs[1], sharex = ax0)
@@ -54,6 +55,12 @@ def plotVibNLogg(df_vibsensor, df_protak, df_felt):
     # remove last tick label for the second subplot
     yticks = ax1.yaxis.get_major_ticks()
     yticks[-1].label1.set_visible(False)
+
+    # felt replacements
+    first_date = df_vibsensor.iloc[-1].Datetime
+    replacements = feltdata.replacement_list(df_felt,first_date)
+    ax0.vlines(replacements, -2, 9, colors='k', linestyles='solid', label='replacements')
+    ax1.vlines(replacements, 0.8, 1.2, colors='k', linestyles='solid', label='replacements')
     
     myFmt = mdates.DateFormatter('%d/%m') # select format of datetime
     ax1.xaxis.set_major_formatter(myFmt)
@@ -64,9 +71,14 @@ def plotVibNLogg(df_vibsensor, df_protak, df_felt):
     # connect picker
     fig.canvas.callbacks.connect('pick_event', gtol.on_pick)
 
+    ax0.title.set_text(vibsensor)
+
     # remove vertical gap between subplots
     plt.subplots_adjust(hspace=.0)
     plt.show()
+
+    fig.savefig("../saved_plots/" + vibsensor + "+trimproblem.pdf", bbox_inches='tight')
+
 
 def doublePlot(df_list, plt1items, plt2items):
     fig = plt.figure()
