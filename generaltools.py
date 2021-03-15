@@ -1,12 +1,16 @@
 import numpy as np
 import math
+import datetime as dt
 
 point_click = tuple()
 
 def main():
-    testlista = [4, 5, 6 ,1 ,-1, 8]
-    breaches = count_breaches(testlista, upper_threshold= 4)
-    print(breaches)
+    # testlista = [4, 5, 6 ,1 ,-1, 8]
+    # breaches = count_breaches(testlista, upper_threshold= 4)
+    # print(breaches)
+    datetime_list = [dt.datetime(2020,11,5,6,0), dt.datetime(2020,12,3,15,15),dt.datetime(2020,12,7,0,15)]
+    new_dates = extract_date_list(datetime_list,dt.datetime(2020,11,5),dt.datetime(2020,12,8))
+    print(new_dates)
 
 def nearest(items, pivot):
     nearest = min(items, key=lambda x: abs(x - pivot))
@@ -16,6 +20,17 @@ def nearest(items, pivot):
 def is_date_between(check_date, first_date, last_date):
     pass
     return # isbetween # true if check_date lies between first_date and last_date
+
+def extract_date_list(list_of_dates, first_date, last_date):
+    ''' extract a list of dates from (ordered) list/series 
+    by specifying first and last date
+    all dates in datetime format
+    '''
+    extracted_dates=[]
+    for item in list_of_dates:
+        if (item>first_date) and (item<last_date):
+            extracted_dates.append(item)
+    return extracted_dates
 
 def count_breaches(list_of_values, lower_threshold=-math.inf, upper_threshold=math.inf):
     nBreaches_lower = sum(x < lower_threshold for x in list_of_values)
