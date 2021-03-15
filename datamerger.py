@@ -12,19 +12,26 @@ import pandas as pd
 from matplotlib import gridspec
 import numpy as np
 
+import generaltools as gtol
 import observer
 import protak
+import feltdata
 
 def main():
     # stackOverflowTest()
-    df_observer = observer.load_data(positions = ['P001F'], timeperiod = '201027-210221')
+    df_observer = observer.load_data(positions = ['P001D'], timeperiod = '201027-210221')
     df_protak = protak.load_data()
+    df_felt = feltdata.load_data()
     # print(df_protak.columns)
-    plotVibNLogg(df_observer[0]['featuresDF'],df_protak)
-    print(df_observer)
+    plotVibNLogg(df_observer,df_protak, df_felt)
+    # print(df_observer)
     # doublePlot([df_observer,df_protak], ['RMS','KURT'],['trimproblem'])#,'massakladd'
 
-def plotVibNLogg(df_observer, df_protak):
+def plotVibNLogg(df_observer, df_protak, df_felt):
+
+    obsindex = 0
+    df_vibsensor = df_observer[obsindex]['featuresDF']
+    vibsensor = df_observer[obsindex]['position']
 
     fig = plt.figure()
     # set height ratios for subplots
@@ -34,21 +41,26 @@ def plotVibNLogg(df_observer, df_protak):
     ax0 = plt.subplot(gs[0])
     # log scale for axis Y of the first subplot
     # ax0.set_yscale("log")
-    line0, = ax0.plot(df_observer.Datetime, df_observer.RMS, color='r', label="RMS")
-    line1, = ax0.plot(df_observer.Datetime, df_observer.KURT, color='g', label="kurtosis")
-    
+    line0, = ax0.plot(df_vibsensor.Datetime, df_vibsensor.RMS, color='r', label="RMS",picker=True)
+    line1, = ax0.plot(df_vibsensor.Datetime, df_vibsensor.KURT, color='g', label="kurtosis",picker=True)
 
     # the second subplot
     # shared axis X
     ax1 = plt.subplot(gs[1], sharex = ax0)
     ptak_dates=df_protak.STARTDATE[500:-1]
-    line2, = ax1.plot(ptak_dates, np.ones(len(ptak_dates)),'*', color='b',label='trimproblem')
+    line2, = ax1.plot(ptak_dates, np.ones(len(ptak_dates)),'*', color='b',label='trimproblem',picker=True)
     # myFmt = mdates.DateFormatter('%d/%m %H:%M') # select format of datetime
     # plt.ax0.xaxis.set_major_formatter(myFmt)
     plt.setp(ax0.get_xticklabels(), visible=False)
     # remove last tick label for the second subplot
     yticks = ax1.yaxis.get_major_ticks()
     yticks[-1].label1.set_visible(False)
+
+    # felt replacements
+    first_date = df_vibsensor.iloc[-1].Datetime
+    replacements = feltdata.replacement_list(df_felt,first_date)
+    ax0.vlines(replacements, -2, 9, colors='k', linestyles='solid', label='replacements')
+    ax1.vlines(replacements, 0.8, 1.2, colors='k', linestyles='solid', label='replacements')
     
     myFmt = mdates.DateFormatter('%d/%m') # select format of datetime
     ax1.xaxis.set_major_formatter(myFmt)
@@ -56,9 +68,17 @@ def plotVibNLogg(df_observer, df_protak):
     # put legend on first subplot
     ax0.legend((line0, line1, line2), (line0.get_label(), line1.get_label(),'trimproblem'),loc='upper left') #
 
+    # connect picker
+    fig.canvas.callbacks.connect('pick_event', gtol.on_pick)
+
+    ax0.title.set_text(vibsensor)
+
     # remove vertical gap between subplots
     plt.subplots_adjust(hspace=.0)
     plt.show()
+
+    fig.savefig("../saved_plots/" + vibsensor + "+trimproblem.pdf", bbox_inches='tight')
+
 
 def doublePlot(df_list, plt1items, plt2items):
     fig = plt.figure()
