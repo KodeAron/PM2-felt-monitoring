@@ -25,8 +25,18 @@ def main():
     filename = '1aPressT_Acc_ej-nyp_201001-210315'
     xme_file = filename + '.xme'
     xmd_file = filename + '.xmd'
-    list_of_nodes = nodelist(xme_file)
-    print(list_of_nodes)
+    # list_of_nodes = nodelist(xme_file)
+    # print(list_of_nodes)
+    plot_signal_from_xmd(xmd_file,'4624','2020-12-07')
+
+def plot_signal_from_xmd(xmdfilename, IDNode, datestring):
+    full_path = path_data + xmdfilename
+    tree = etree.parse(full_path)
+    root = tree.getroot()
+    
+    for measurement in root.findall('Measurement'):
+        if measurement.find('IDNode').text == IDNode:
+            print(measurement.find('MeasDate').text)
             
 def nodelist(xmefilename):
     full_path = path_data + xmefilename
