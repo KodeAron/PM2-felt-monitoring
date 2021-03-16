@@ -6,14 +6,15 @@ Read acceleration data in xml (xmd/xme) format. Return dataframe. Save to file.
 Created on Mar 16 2021 11:30
 @author: Aron, Luleå University of Technology
 """
-# import numpy as np
-# import matplotlib.pyplot as plt
+import numpy as np
+import matplotlib.pyplot as plt
 # import matplotlib.dates as mdates
 # import scipy.stats as spstats
 # import pandas as pd
 # import os
-# import datetime as dt
+import datetime as dt
 import xml.etree.ElementTree as etree
+import struct
 
 import generaltools as gtol
 
@@ -35,8 +36,34 @@ def plot_signal_from_xmd(xmdfilename, IDNode, datestring):
     root = tree.getroot()
     
     for measurement in root.findall('Measurement'):
-        if measurement.find('IDNode').text == IDNode:
+        if measurement.find('IDNode').text == IDNode and measurement.find('MeasDate').text.startswith(datestring):
             print(measurement.find('MeasDate').text)
+            IDMeasurement = measurement.find('IDMeasurement').text
+            print(IDMeasurement)
+            break
+    
+    for MeasurementBinaryRaw in root.findall('MeasurementBinaryRaw'):
+        if MeasurementBinaryRaw.find('IDMeasurement').text == IDMeasurement and \
+            MeasurementBinaryRaw.find('DataType').text == '2': # DataType=2 means time signal
+            scalefactor = float(MeasurementBinaryRaw.find('ScaleFactor').text)
+            print(scalefactor)
+            RawData = MeasurementBinaryRaw.find('RawData').text
+            break
+
+    RawData_bytestring = RawData.encode()
+    # print(len(RawData))
+    # print(len(RawData_bytestring))
+    # print(int(RawData_bytestring[0]))
+
+    unpackedData = []
+
+    for iLine in range(16384):
+        value = struct.unpack_from('=h', RawData_bytestring,offset=(iLine-1)*2)[0]
+        unpackedData.append(value)
+        
+    print(unpackedData)
+    processed_data = scalefactor * np.array(unpackedData)
+    print(processed_data)
             
 def nodelist(xmefilename):
     full_path = path_data + xmefilename
@@ -47,16 +74,16 @@ def nodelist(xmefilename):
     list_of_parents = []
 
     for node in root.findall('Node'):
-        IDNode = node.find('IDNode')
-        IDParent = node.find('IDParent')
-        NodeName = node.find('NodeName')
+        IDNode = node.find('IDNode').text
+        IDParent = node.find('IDParent').text
+        NodeName = node.find('NodeName').text
 
         # add to list, as dictionary
-        nodedict = {'IDNode':IDNode.text, 'IDParent':IDParent.text, 'NodeName':NodeName.text}
+        nodedict = {'IDNode':IDNode, 'IDParent':IDParent, 'NodeName':NodeName}
         nodelist.append(nodedict)
 
         # save IDParents in list
-        list_of_parents.append(IDParent.text)
+        list_of_parents.append(IDParent)
 
     # delete all parent nodes, all nodes except those in the "bottom"
     iteration=0
