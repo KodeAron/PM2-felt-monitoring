@@ -27,23 +27,6 @@ def main():
     xmd_file = filename + '.xmd'
     list_of_nodes = nodelist(xme_file)
     print(list_of_nodes)
-
-    # for elem in root:
-    #     if elem.tag=='Node':
-    #         print(elem.Node)
-    #     print(elem.tag,end=' ')
-    #     # print(subelem.text)
-
-    # for child in root:
-    #     print(child.tag, child.attrib)
-    
-    # count=0
-    # for elem in root:
-    #     count=count+1
-    #     if count == 20:
-    #         break
-    #     for subelem in elem:
-    #         print(subelem.tag)
             
 def nodelist(xmefilename):
     full_path = path_data + xmefilename
@@ -51,19 +34,27 @@ def nodelist(xmefilename):
     root = tree.getroot()
 
     nodelist = []
+    list_of_parents = []
 
     for node in root.findall('Node'):
-        # for elem in node:
         IDNode = node.find('IDNode')
-        print('IDNode : ' + IDNode.text)
         IDParent = node.find('IDParent')
-        print('IDParent : ' + IDParent.text)
         NodeName = node.find('NodeName')
-        print('NodeName : ' + NodeName.text)
 
         # add to list, as dictionary
         nodedict = {'IDNode':IDNode.text, 'IDParent':IDParent.text, 'NodeName':NodeName.text}
         nodelist.append(nodedict)
+
+        # save IDParents in list
+        list_of_parents.append(IDParent.text)
+
+    # delete all parent nodes, all nodes except those in the "bottom"
+    iteration=0
+    while iteration < len(nodelist):
+        if nodelist[iteration]['IDNode'] in list_of_parents:
+            nodelist.pop(iteration)
+        else:
+            iteration=iteration+1            
 
     return nodelist
 
