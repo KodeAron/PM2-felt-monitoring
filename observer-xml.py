@@ -25,7 +25,8 @@ def main():
     filename = '1aPressT_Acc_ej-nyp_201001-210315'
     xme_file = filename + '.xme'
     xmd_file = filename + '.xmd'
-    nodelist(xme_file)
+    list_of_nodes = nodelist(xme_file)
+    print(list_of_nodes)
 
     # for elem in root:
     #     if elem.tag=='Node':
@@ -49,6 +50,8 @@ def nodelist(xmefilename):
     tree = etree.parse(full_path)
     root = tree.getroot()
 
+    nodelist = []
+
     for node in root.findall('Node'):
         # for elem in node:
         IDNode = node.find('IDNode')
@@ -57,6 +60,12 @@ def nodelist(xmefilename):
         print('IDParent : ' + IDParent.text)
         NodeName = node.find('NodeName')
         print('NodeName : ' + NodeName.text)
+
+        # add to list, as dictionary
+        nodedict = {'IDNode':IDNode.text, 'IDParent':IDParent.text, 'NodeName':NodeName.text}
+        nodelist.append(nodedict)
+
+    return nodelist
 
 if __name__ == '__main__':
     main()
