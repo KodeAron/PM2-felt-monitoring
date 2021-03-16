@@ -22,11 +22,10 @@ path_data = '../data_observer/xml/' # folder containing the raw data
 path_features = '../data_observer/features_dfs/' # folder containing the features files
 
 def main():
-    filename = '1aPressT_Acc_ej-nyp_201001-210315.xme'
-    full_path = path_data + filename
-    tree = etree.parse(full_path)
-    root = tree.getroot()
-    print(root)
+    filename = '1aPressT_Acc_ej-nyp_201001-210315'
+    xme_file = filename + '.xme'
+    xmd_file = filename + '.xmd'
+    nodelist(xme_file)
 
     # for elem in root:
     #     if elem.tag=='Node':
@@ -36,9 +35,6 @@ def main():
 
     # for child in root:
     #     print(child.tag, child.attrib)
-
-    for nodename in root.iter('NodeName'):
-        print(nodename.text)
     
     # count=0
     # for elem in root:
@@ -48,7 +44,19 @@ def main():
     #     for subelem in elem:
     #         print(subelem.tag)
             
+def nodelist(xmefilename):
+    full_path = path_data + xmefilename
+    tree = etree.parse(full_path)
+    root = tree.getroot()
 
+    for node in root.findall('Node'):
+        # for elem in node:
+        IDNode = node.find('IDNode')
+        print('IDNode : ' + IDNode.text)
+        IDParent = node.find('IDParent')
+        print('IDParent : ' + IDParent.text)
+        NodeName = node.find('NodeName')
+        print('NodeName : ' + NodeName.text)
 
 if __name__ == '__main__':
     main()
