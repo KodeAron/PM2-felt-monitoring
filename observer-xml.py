@@ -28,7 +28,7 @@ def main():
     xmd_file = filename + '.xmd'
     # list_of_nodes = nodelist(xme_file)
     # print(list_of_nodes)
-    plot_signal_from_xmd(xmd_file,'4624','2020-12-07')
+    plot_signal_from_xmd(xmd_file,'4624','2020-12-18')
 
 def plot_signal_from_xmd(xmdfilename, IDNode, datestring):
     full_path = path_data + xmdfilename
@@ -50,21 +50,37 @@ def plot_signal_from_xmd(xmdfilename, IDNode, datestring):
             RawData = MeasurementBinaryRaw.find('RawData').text
             break
 
-    RawData_bytestring = RawData.encode()
+    RawData_bytestring = RawData.encode('utf-8')
     # print(len(RawData))
     # print(len(RawData_bytestring))
     # print(int(RawData_bytestring[0]))
 
     unpackedData = []
 
-    for iLine in range(16384):
-        value = struct.unpack_from('=h', RawData_bytestring,offset=(iLine-1)*2)[0]
+    noLines = int(len(RawData_bytestring))
+    print('noLines = ' + str(noLines))
+
+    true_noLines = 16384 # true number of lines, retrieved from 
+
+    for iLine in range(true_noLines):
+        # value = struct.unpack_from('=b', RawData_bytestring,offset=(iLine-1)*1)[0]
+        # value, = struct.unpack_from('>e', RawData_bytestring,offset=(iLine-1)*2)
+        value = int.from_bytes(RawData_bytestring[iLine:(iLine+2)],'little',signed=True)
         unpackedData.append(value)
         
-    print(unpackedData)
+    # print(unpackedData)
     processed_data = scalefactor * np.array(unpackedData)
     print(processed_data)
-            
+
+    print(len(processed_data))
+
+    print('max value : ' + str(max(unpackedData)))
+    print('min value : ' + str(min(unpackedData)))
+
+    plt.plot(processed_data[:],'b-',label='processed data')
+    plt.show()
+
+
 def nodelist(xmefilename):
     full_path = path_data + xmefilename
     tree = etree.parse(full_path)
