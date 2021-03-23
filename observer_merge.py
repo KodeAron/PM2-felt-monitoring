@@ -29,10 +29,13 @@ def save_raw_data():
         # add space between roller name and F/D
         position = pos['position']
         position_str = position[0:4] + ' ' + position[4]
-        for node in nodelist:
-            if node['NodeName'].startswith(position_str):
-                print(node['IDNode'])
-                break
+        # lookup the ID from the name
+        IDNode = next(node['IDNode'] for node in nodelist if node["NodeName"].startswith(position_str))
+        print(IDNode)
+        # for node in nodelist:
+        #     if node['NodeName'].startswith(position_str):
+        #         print(node['IDNode'])
+        #         break
 
 if __name__ == '__main__':
     main()
