@@ -20,18 +20,19 @@ import generaltools as gtol
 # global variables
 path_data = '../data_observer/xml/' # folder containing the raw data
 path_features = '../data_observer/features_dfs/' # folder containing the features files
+default_filename = '1aPressT_Acc_ej-nyp_201001-210315'
 
 def main():
     filename = '1aPressT_Acc_ej-nyp_201001-210315'
     xme_file = filename + '.xme'
     xmd_file = filename + '.xmd'
-    # list_of_nodes = nodelist(xme_file)
-    # print(list_of_nodes)
-    df = measurements_info(xmd_file)
+    list_of_nodes = nodelist()
+    print(list_of_nodes)
+    df = measurements_info()
     print(df)
     # plot_signal_from_xmd(xmd_file,'4624','2020-12-18')
 
-def measurements_info(xmdfilename):
+def measurements_info(xmdfilename=default_filename+'.xmd'):
     """ 
     Extract all measurements and information; such as MeasID, IDNode, Speed; for each.
     """
@@ -51,7 +52,7 @@ def measurements_info(xmdfilename):
     meas_df = pd.DataFrame(meas_dictlist)     
     return meas_df
 
-def plot_signal_from_xmd(xmdfilename, IDNode, datestring):
+def plot_signal_from_xmd(IDNode, datestring, xmdfilename=default_filename+'.xmd'):
     full_path = path_data + xmdfilename
     tree = etree.parse(full_path)
     root = tree.getroot()
@@ -102,7 +103,7 @@ def plot_signal_from_xmd(xmdfilename, IDNode, datestring):
     plt.show()
 
 
-def nodelist(xmefilename):
+def nodelist(xmefilename=default_filename+'.xme'):
     full_path = path_data + xmefilename
     tree = etree.parse(full_path)
     root = tree.getroot()
