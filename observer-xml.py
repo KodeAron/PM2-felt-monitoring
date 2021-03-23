@@ -37,47 +37,47 @@ def plot_signal_from_xmd(xmdfilename, IDNode, datestring):
     
     for measurement in root.findall('Measurement'):
         if measurement.find('IDNode').text == IDNode and measurement.find('MeasDate').text.startswith(datestring):
-            print(measurement.find('MeasDate').text)
+            print('MeasDate: ' + measurement.find('MeasDate').text)
             IDMeasurement = measurement.find('IDMeasurement').text
-            print(IDMeasurement)
+            print('IDMeasurement: ' + IDMeasurement)
             break
     
     for MeasurementBinaryRaw in root.findall('MeasurementBinaryRaw'):
         if MeasurementBinaryRaw.find('IDMeasurement').text == IDMeasurement and \
             MeasurementBinaryRaw.find('DataType').text == '2': # DataType=2 means time signal
             scalefactor = float(MeasurementBinaryRaw.find('ScaleFactor').text)
-            print(scalefactor)
+            print('scalefactor = ' + str(scalefactor))
             RawData = MeasurementBinaryRaw.find('RawData').text
             break
 
-    RawData_bytestring = RawData.encode('utf-8')
+    print('len(RawData) = '+str(len(RawData)))
+    RawData_bytestring = RawData.encode('iso8859_2')#'utf-8')
     # print(len(RawData))
     # print(len(RawData_bytestring))
     # print(int(RawData_bytestring[0]))
 
     unpackedData = []
 
-    noLines = int(len(RawData_bytestring))
-    print('noLines = ' + str(noLines))
+    print('len(RawData_bytestring) = ' + str(len(RawData_bytestring)))
 
     true_noLines = 16384 # true number of lines, retrieved from 
 
     for iLine in range(true_noLines):
-        # value = struct.unpack_from('=b', RawData_bytestring,offset=(iLine-1)*1)[0]
-        # value, = struct.unpack_from('>e', RawData_bytestring,offset=(iLine-1)*2)
-        value = int.from_bytes(RawData_bytestring[iLine:(iLine+2)],'little',signed=True)
+        offset = (iLine)*2
+        value, = struct.unpack_from('=h', RawData_bytestring,offset=offset)
+        # value, = struct.unpack_from('=B', RawData_bytestring,offset=iLine)
+        # value = int.from_bytes(RawData_bytestring[iLine:(iLine+2)],'little',signed=True)
         unpackedData.append(value)
         
     # print(unpackedData)
     processed_data = scalefactor * np.array(unpackedData)
-    print(processed_data)
-
-    print(len(processed_data))
+    print('processed_data = ' + str(processed_data))
+    print('len(procesed_data) = ' + str(len(processed_data)))
 
     print('max value : ' + str(max(unpackedData)))
     print('min value : ' + str(min(unpackedData)))
 
-    plt.plot(processed_data[:],'b-',label='processed data')
+    plt.plot(processed_data[:],'b*',label='processed data')
     plt.show()
 
 
