@@ -7,6 +7,7 @@ Created on Mar 23 2021 15:48
 import observer_xml as obsx
 import observer_uff as obsu
 import numpy as np
+import datetime as dt
 
 def main():
     save_raw_data()
@@ -24,6 +25,7 @@ def save_raw_data():
     df = obsx.measurements_info()
 
     df['RawData'] = np.nan
+    print(df)
 
     for pos in uffdfs:
         # add space between roller name and F/D
@@ -32,10 +34,27 @@ def save_raw_data():
         # lookup the ID from the name
         IDNode = next(node['IDNode'] for node in nodelist if node["NodeName"].startswith(position_str))
         print(IDNode)
-        # for node in nodelist:
-        #     if node['NodeName'].startswith(position_str):
-        #         print(node['IDNode'])
-        #         break
+
+        noderows = df.loc[(df['IDNode'] == IDNode)].index 
+
+        print(noderows)
+
+        diff = df.iloc[noderows[0]].MeasDate-pos['featuresDF'].iloc[-1].Datetime
+
+        if diff < dt.timedelta(milliseconds=10):
+            print('less than 10 ms diff')
+        elif diff < dt.timedelta(seconds=1):
+            print('less than 1 s diff')
+        elif diff < dt.timedelta(minute=1):
+            print('less than 1 min diff')
+
+        print(diff)
+
+        # df.iloc[0]['RawData'] = 'test'
+
+        # df.set_value()
+
+        # print(df[df['RawData']=='test'])
 
 if __name__ == '__main__':
     main()
