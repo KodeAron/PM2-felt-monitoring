@@ -19,18 +19,19 @@ import datetime as dt
 import generaltools as gtol
 
 # global variables
-path_data = '../data_observer/'
-path_features = '../featuresPerPosition/' # file path folder containing the features files
+path_uffs = '../data_observer/uff/'
+path_pickles = '../data_observer/pickles/' # file path folder containing the features files
 # point_click = tuple() # holds the location of the latest click on line in plot
 
 
 def main():
     position = 'P001F'
     timeperiod = '201027-210221'
-    # testlist = convert_UFFs('201027-210221')
+    # convert_UFFs('201027-210221')
+    # print(testlist)
     # df = UFFfile_to_featuresDF(position,timeperiod)
-    # df = load_data([position],timeperiod)
-    # print(df)
+    df = load_data([position],timeperiod)
+    print(df[0]['featuresDF'].RAW[121][5])
     # date = dt.datetime(2020,12,5,12)
     # datetime_list = [dt.datetime(2020,11,5,6,0), dt.datetime(2020,12,3,15,15),dt.datetime(2020,12,7,0,15)]
     # plot_features(df[0])
@@ -42,29 +43,31 @@ def main():
     # print(df[0]['featuresDF']['Datetime'].iloc[0])
     # print(df[0]['featuresDF']['KURT'])
     # print(gtol.count_breaches(df[0]['featuresDF']['KURT'],-0.5,2))
-    data=UFFfile_to_UFFdata(position + '_A_' + timeperiod + '.uff')
-    rsp_list = gtol.all_values_from_key(data,'rsp_node')
-    print(rsp_list)
 
-    # print(measurements_when(data))
-    dict1 = extract_UFFdict_from_date(data,'10-02-2021') # 13:00:07
-    dict2 = extract_UFFdict_from_date(data,'11-02-2021') # 12:00:32
-    gtol.compare_dicts(dict1,dict2)
-    dict1 = extract_UFFdict_from_date(data,'06-02-2021') # 13:23:15
-    dict2 = extract_UFFdict_from_date(data,'30-01-2021') # 01:00:32
-    gtol.compare_dicts(dict1,dict2)
+    # # AM/PM issue
+    # data=UFFfile_to_UFFdata(position + '_A_' + timeperiod + '.uff')
+    # rsp_list = gtol.all_values_from_key(data,'rsp_node')
+    # print(rsp_list)
+
+    # # print(measurements_when(data))
+    # dict1 = extract_UFFdict_from_date(data,'10-02-2021') # 13:00:07
+    # dict2 = extract_UFFdict_from_date(data,'11-02-2021') # 12:00:32
+    # gtol.compare_dicts(dict1,dict2)
+    # dict1 = extract_UFFdict_from_date(data,'06-02-2021') # 13:23:15
+    # dict2 = extract_UFFdict_from_date(data,'30-01-2021') # 01:00:32
+    # gtol.compare_dicts(dict1,dict2)
     
 def load_data(positions=[],timeperiod=''):
 # Load data from files if available. Return list of dataframes, one for each position.
     listOfDataframes = []
     # search through folder for filenames
-    dirs = os.scandir(path_features)
+    dirs = os.scandir(path_pickles)
     # if no positions or timeperiod then convert all files in folder
     if len(positions)==0 and len(timeperiod)==0:
         for entry in dirs:
             print(entry.name) # testing
             #load dataframe from file
-            read_pickle_to_dataframe(listOfDataframes,path_features,entry.name)
+            read_pickle_to_dataframe(listOfDataframes,path_pickles,entry.name)
     else: # else check if specified positions are available in folder
         converted_files=[] # save files that are converted
         not_found_sensors = positions # list with sensors not found in folder
@@ -85,14 +88,14 @@ def load_data(positions=[],timeperiod=''):
     return listOfDataframes
     
 def read_pickle_to_dataframe(listOfDataframes,filename):
-    df = pd.read_pickle(path_features + filename)
+    df = pd.read_pickle(path_pickles + filename)
     position,timeperiod = split_filename(filename)
     listOfDataframes.append({'featuresDF':df, 'position':position, 'timeperiod':timeperiod})
 
 def convert_UFFs(timeperiod=''):
 # load UFF, convert to dataframe (with only interesting fields) and save to files
     # search through folder for filenames
-    with os.scandir(path_data) as dirs:
+    with os.scandir(path_uffs) as dirs:
         for entry in dirs:
             sensor_position, time_period = split_filename(entry.name)
             # exclued everything that is not UFF file
@@ -126,31 +129,32 @@ def UFFfile_to_featuresfile(sensPos_or_filename, timeperiod=''):
         else:
             sensPos_or_filename = position
         featuresDF = UFFfile_to_featuresDF(position, timeperiod)
-        result_filename = path_features + position + '_' + timeperiod
+        result_filename = path_pickles + position + '_' + timeperiod
         featuresDF.to_pickle(result_filename)
     return featuresDF
 
 def UFFfile_to_featuresDF(position, timeperiod):
-    data = UFFfile_to_UFFdata(path_data + position + '_A_' + timeperiod + '.uff')
+    data = UFFfile_to_UFFdata(path_uffs + position + '_A_' + timeperiod + '.uff')
     featuresDF = UFFdata_to_featuresDF(data)
     return featuresDF
 
 def UFFfile_to_UFFdata(filename):
     if not filename.startswith('../'):
-        filename = path_data + filename
+        filename = path_uffs + filename
     uff_file = pyuff.UFF(filename)
     UFFdata = uff_file.read_sets()
     return UFFdata
 
 def UFFdata_to_featuresDF(UFFdata):
     # rms, kurtosis
-    featuresDF = pd.DataFrame(columns=['Datetime', 'RMS', 'KURT'])#,'x','data'])
+    featuresDF = pd.DataFrame(columns=['Datetime', 'RAW', 'RMS', 'KURT'])#,'x','data'])
 
     for i in range(len(UFFdata)):
+        val_raw = UFFdata[i]['data']
         val_rms = np.sqrt(np.mean(UFFdata[i]['data']**2))
         val_kurtosis = spstats.kurtosis(np.abs(UFFdata[i]['data']))
         # save the calculated features in dataframe. Get datetime at id3 in data
-        featuresDF = featuresDF.append({'Datetime':UFFdata[i]['id3'], 
+        featuresDF = featuresDF.append({'Datetime':UFFdata[i]['id3'], 'RAW':val_raw,
             'RMS':val_rms, 'KURT':val_kurtosis},#, 'x':data[i]['x'], 'data':data[i]['data']},
             ignore_index=True)
 
@@ -162,7 +166,7 @@ def plot_signal(location, datestring):
 # datestring as 'DD-MM-YYYY'
     # assume location is filename
     file_found=False
-    for entry in os.scandir(path_data):
+    for entry in os.scandir(path_uffs):
         if entry.name.startswith(location):
             file_found=True
             print('Extracting signal data from',end=' ')
@@ -177,7 +181,7 @@ def plot_signal(location, datestring):
             break # escape loop when one file is found
     if not file_found:
         print('Could not retrieve data. Check spelling and that the file is available in',end=' ')
-        print(path_data)
+        print(path_uffs)
 
 def plot_signal_from_data(data, index):
     fig, ax = plt.subplots()
