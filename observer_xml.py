@@ -26,8 +26,8 @@ def main():
     filename = '1aPressT_Acc_ej-nyp_201001-210315'
     xme_file = filename + '.xme'
     xmd_file = filename + '.xmd'
-    list_of_nodes = nodelist()
-    print(list_of_nodes)
+    # list_of_nodes = nodelist()
+    # print(list_of_nodes)
     df = measurements_info()
     print(df)
     # plot_signal_from_xmd(xmd_file,'4624','2020-12-18')
@@ -50,6 +50,11 @@ def measurements_info(xmdfilename=default_filename+'.xmd'):
         meas_dictlist.append(measdict)
         # break
     meas_df = pd.DataFrame(meas_dictlist)     
+    meas_df['MeasDate'] = pd.to_datetime(meas_df['MeasDate'], format='%Y-%m-%dT%H:%M:%S',utc=True)
+    # convert to central european time, UTC+1
+    meas_df.MeasDate = meas_df.MeasDate.dt.tz_convert('CET')
+    print(meas_df['MeasDate'][0].tzinfo)
+    # meas_df['MeasDate'].tz_convert('EU/central')
     return meas_df
 
 def plot_signal_from_xmd(IDNode, datestring, xmdfilename=default_filename+'.xmd'):
