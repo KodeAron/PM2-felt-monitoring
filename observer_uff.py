@@ -64,10 +64,14 @@ def load_data(positions=[],timeperiod=''):
     dirs = os.scandir(path_pickles)
     # if no positions or timeperiod then convert all files in folder
     if len(positions)==0 and len(timeperiod)==0:
+        converted_files = []
         for entry in dirs:
-            print(entry.name) # testing
+            # print(entry.name) # testing
             #load dataframe from file
             read_pickle_to_dataframe(listOfDataframes,entry.name)
+            converted_files.append(entry.name)
+        print('Loaded files: ',end='')
+        print(converted_files)
     else: # else check if specified positions are available in folder
         converted_files=[] # save files that are converted
         not_found_sensors = positions # list with sensors not found in folder
