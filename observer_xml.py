@@ -52,7 +52,7 @@ def measurements_info(xmdfilename=default_filename+'.xmd'):
     meas_df = pd.DataFrame(meas_dictlist)     
     meas_df['MeasDate'] = pd.to_datetime(meas_df['MeasDate'], format='%Y-%m-%dT%H:%M:%S',utc=True)
     # convert to central european time, UTC+1
-    meas_df.MeasDate = meas_df.MeasDate.dt.tz_convert('CET')
+    meas_df.MeasDate = meas_df.MeasDate.dt.tz_convert('CET').dt.tz_localize(None)
     # print(meas_df['MeasDate'][0].tzinfo)
     meas_df = meas_df.sort_values(by='MeasDate').reset_index(drop=True,inplace=False)
     return meas_df
