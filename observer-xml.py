@@ -10,8 +10,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 # import matplotlib.dates as mdates
 # import scipy.stats as spstats
-# import pandas as pd
-# import os
+import pandas as pd
 import datetime as dt
 import xml.etree.ElementTree as etree
 import struct
@@ -28,7 +27,30 @@ def main():
     xmd_file = filename + '.xmd'
     # list_of_nodes = nodelist(xme_file)
     # print(list_of_nodes)
-    plot_signal_from_xmd(xmd_file,'4624','2020-12-18')
+    measurements_info(xmd_file)
+    # plot_signal_from_xmd(xmd_file,'4624','2020-12-18')
+
+def measurements_info(xmdfilename):
+    """ 
+    Extract all measurements and information; such as MeasID, IDNode, Speed; for each.
+    """
+    full_path = path_data + xmdfilename
+    tree = etree.parse(full_path)
+    root = tree.getroot()
+
+    meas_df = pd.DataFrame()#columns=['User_ID', 'UserName', 'Action'])
+
+    for measurement in root.findall('Measurement'):
+        measdict = {}
+        for child in measurement:
+            print(child.tag,child.text)
+            measdict[child.tag] = child.text
+        meas_df=meas_df.append(measdict, ignore_index=True)
+        break
+    # for measurement in root.findall('Measurement'):
+    #    meas_df.append(pd.Series(['James', 95, 'M'], index=meas_df.columns), ignore_index=True) 
+    # return meas_df
+    print(meas_df)
 
 def plot_signal_from_xmd(xmdfilename, IDNode, datestring):
     full_path = path_data + xmdfilename
