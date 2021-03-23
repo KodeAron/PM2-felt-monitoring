@@ -67,7 +67,7 @@ def load_data(positions=[],timeperiod=''):
         for entry in dirs:
             print(entry.name) # testing
             #load dataframe from file
-            read_pickle_to_dataframe(listOfDataframes,path_pickles,entry.name)
+            read_pickle_to_dataframe(listOfDataframes,entry.name)
     else: # else check if specified positions are available in folder
         converted_files=[] # save files that are converted
         not_found_sensors = positions # list with sensors not found in folder
