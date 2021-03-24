@@ -30,6 +30,7 @@ def main():
     # print(list_of_nodes)
     df = measurements_info()
     print(df)
+    print(type(df.iloc[1].MeasDate))
     # plot_signal_from_xmd(xmd_file,'4624','2020-12-18')
 
 def measurements_info(xmdfilename=default_filename+'.xmd'):
@@ -51,8 +52,8 @@ def measurements_info(xmdfilename=default_filename+'.xmd'):
         # break
     meas_df = pd.DataFrame(meas_dictlist)     
     meas_df['MeasDate'] = pd.to_datetime(meas_df['MeasDate'], format='%Y-%m-%dT%H:%M:%S',utc=True)
-    # convert to central european time, UTC+1
-    meas_df.MeasDate = meas_df.MeasDate.dt.tz_convert('CET').dt.tz_localize(None)
+    # convert to central european time (UTC+1), make seconds floor, make naive (non-aware)
+    meas_df.MeasDate = meas_df.MeasDate.dt.tz_convert('CET').dt.floor('S').dt.tz_localize(None)
     # print(meas_df['MeasDate'][0].tzinfo)
     meas_df = meas_df.sort_values(by='MeasDate').reset_index(drop=True,inplace=False)
     return meas_df
