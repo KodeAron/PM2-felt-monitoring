@@ -27,7 +27,7 @@ path_pickles = '../data_observer/pickles/' # file path folder containing the fea
 def main():
     position = 'P001F'
     timeperiod = '201027-210221'
-    # convert_UFFs('201027-210221')
+    convert_UFFs('201027-210221')
     # print(testlist)
     # df = UFFfile_to_featuresDF(position,timeperiod)
     df = load_data([position],timeperiod)
@@ -164,8 +164,8 @@ def UFFdata_to_featuresDF(UFFdata):
 
     # convert MeasDate from string to datetime/timestamp object
     featuresDF['MeasDate'] = pd.to_datetime(featuresDF['MeasDate'], format='%d-%m-%Y %H:%M:%S')
-    # sort and reset index afterwards
-    featuresDF = featuresDF.sort_values(by='MeasDate').reset_index(drop=True,inplace=False)
+    # reverse and reset index afterwards
+    featuresDF = featuresDF.sort_index(ascending=False, axis=0).reset_index(drop=True,inplace=False)
     return featuresDF
 
 def plot_signal(location, datestring):
