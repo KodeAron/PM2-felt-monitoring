@@ -31,7 +31,7 @@ def main():
     # print(testlist)
     # df = UFFfile_to_featuresDF(position,timeperiod)
     df = load_data([position],timeperiod)
-    print(df[0]['featuresDF'].RAW[121][5])
+    print(df[0]['featuresDF'])
     # date = dt.datetime(2020,12,5,12)
     # datetime_list = [dt.datetime(2020,11,5,6,0), dt.datetime(2020,12,3,15,15),dt.datetime(2020,12,7,0,15)]
     # plot_features(df[0])
@@ -162,7 +162,10 @@ def UFFdata_to_featuresDF(UFFdata):
             'RMS':val_rms, 'KURT':val_kurtosis},#, 'x':data[i]['x'], 'data':data[i]['data']},
             ignore_index=True)
 
+    # convert Datetime from string to datetime/timestamp object
     featuresDF['Datetime'] = pd.to_datetime(featuresDF['Datetime'], format='%d-%m-%Y %H:%M:%S')
+    # sort and reset index afterwards
+    featuresDF = featuresDF.sort_values(by='Datetime').reset_index(drop=True,inplace=False)
     return featuresDF
 
 def plot_signal(location, datestring):
