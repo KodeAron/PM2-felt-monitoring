@@ -37,7 +37,10 @@ def save_raw_data():
 
         noderows = df.loc[(df['IDNode'] == IDNode)].index 
 
+        df.at[noderows,'RawData'] = noderows
+
         print(noderows)
+        print(df.iloc[7:10])
 
         diff = df.iloc[noderows[0]].MeasDate-pos['featuresDF'].iloc[-1].Datetime
 
