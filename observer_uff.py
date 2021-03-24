@@ -39,8 +39,8 @@ def main():
     #     clicked_time = gtol.point_click[0]
     #     print('clicked time point ',end='')
     #     print(clicked_time)
-    #     print(df[0]['featuresDF'].Datetime[0] == clicked_time)
-    # print(df[0]['featuresDF']['Datetime'].iloc[0])
+    #     print(df[0]['featuresDF'].MeasDate[0] == clicked_time)
+    # print(df[0]['featuresDF']['MeasDate'].iloc[0])
     # print(df[0]['featuresDF']['KURT'])
     # print(gtol.count_breaches(df[0]['featuresDF']['KURT'],-0.5,2))
 
@@ -151,21 +151,21 @@ def UFFfile_to_UFFdata(filename):
 
 def UFFdata_to_featuresDF(UFFdata):
     # rms, kurtosis
-    featuresDF = pd.DataFrame(columns=['Datetime', 'RAW', 'RMS', 'KURT'])#,'x','data'])
+    featuresDF = pd.DataFrame(columns=['MeasDate', 'RAW', 'RMS', 'KURT'])#,'x','data'])
 
     for i in range(len(UFFdata)):
         val_raw = UFFdata[i]['data']
         val_rms = np.sqrt(np.mean(UFFdata[i]['data']**2))
         val_kurtosis = spstats.kurtosis(np.abs(UFFdata[i]['data']))
         # save the calculated features in dataframe. Get datetime at id3 in data
-        featuresDF = featuresDF.append({'Datetime':UFFdata[i]['id3'], 'RAW':val_raw,
+        featuresDF = featuresDF.append({'MeasDate':UFFdata[i]['id3'], 'RAW':val_raw,
             'RMS':val_rms, 'KURT':val_kurtosis},#, 'x':data[i]['x'], 'data':data[i]['data']},
             ignore_index=True)
 
-    # convert Datetime from string to datetime/timestamp object
-    featuresDF['Datetime'] = pd.to_datetime(featuresDF['Datetime'], format='%d-%m-%Y %H:%M:%S')
+    # convert MeasDate from string to datetime/timestamp object
+    featuresDF['MeasDate'] = pd.to_datetime(featuresDF['MeasDate'], format='%d-%m-%Y %H:%M:%S')
     # sort and reset index afterwards
-    featuresDF = featuresDF.sort_values(by='Datetime').reset_index(drop=True,inplace=False)
+    featuresDF = featuresDF.sort_values(by='MeasDate').reset_index(drop=True,inplace=False)
     return featuresDF
 
 def plot_signal(location, datestring):
@@ -209,15 +209,15 @@ def plot_features(features):
     # unpack if features is dict (containing featuresDF, position and timeperiod)
         features = features['featuresDF']
     if type(features) is pd.DataFrame:
-        Datetime = features.Datetime
+        MeasDate = features.MeasDate
         RMS = features.RMS
         KURT = features.KURT
     else:
         print('Unknown format for features')
         return
-    # ax.plot(Datetime.dt.to_pydatetime(),RMS,'b-', label="RMS")
-    ax.plot(Datetime, RMS,'b-', label="rms",picker=True)
-    ax.plot(Datetime, KURT,'r-', label="kurtosis",picker=True)
+    # ax.plot(MeasDate.dt.to_pydatetime(),RMS,'b-', label="RMS")
+    ax.plot(MeasDate, RMS,'b-', label="rms",picker=True)
+    ax.plot(MeasDate, KURT,'r-', label="kurtosis",picker=True)
     myFmt = mdates.DateFormatter('%d/%m') # select format of datetime
     plt.gca().xaxis.set_major_formatter(myFmt)
     fig.canvas.callbacks.connect('pick_event', gtol.on_pick)
