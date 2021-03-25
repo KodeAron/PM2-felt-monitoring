@@ -14,6 +14,60 @@ def main():
     # save_raw_data()
     testing_df_join()
 
+def save_raw_data():
+    """ Save a dataframe with raw data
+    Use pickle to save raw data in dataframe.
+    """
+    # load a list of dictionaries for positions and their IDs
+    nodelist = obsx.nodelist()
+    # load a list of dictionaries. 
+    # One key holds the dataframe. {featuresDF, position, timeperiod}
+    uffdfs = obsu.load_data()
+    
+    df = obsx.measurements_info()
+
+    # add data column to df
+    df['RawData'] = np.nan
+
+    for pos in uffdfs:
+        # get position, i.e. which node
+        position = pos['position']
+        # add space between roller name and F/D
+        position_str = position[0:4] + ' ' + position[4]
+        # lookup the ID from the name
+        IDNode = next(node['IDNode'] for node in nodelist if node["NodeName"].startswith(position_str))
+        print(position,'>',IDNode)
+
+        df_unit = df.loc[df['IDNode']==IDNode,:].copy()
+        rawdf = pos['featuresDF']
+
+        # raise warning if data already stored in data column
+        if df_unit['RawData'].isnull().values.all():
+            print("All in df_unit['RawData'] is nan. Ready to write.")
+            print('len(df_unit) =',str(len(df_unit)),':','len(rawdf) =',str(len(rawdf)))
+        else:
+            print(df_unit[df_unit['RawData']!=np.nan])
+            raise ValueError('Data appeared in unprocessed measurement info.')
+
+        df_unit.drop(labels='RawData',axis=1,inplace=True)
+
+        # join data where time matches exactly
+        joined_df = df_unit.join(rawdf.set_index('MeasDate'),on='MeasDate')
+        rawdf['MeasDate'] = rawdf['MeasDate'] + dt.timedelta(hours=12)
+        # join data where time differs by +12 h
+        joined_pos = df_unit.join(rawdf.set_index('MeasDate'),on='MeasDate')
+        rawdf['MeasDate'] = rawdf['MeasDate'] + dt.timedelta(days=-1)# hours=12 already added, net is -12 h
+        # join data where time differs by -12 h
+        joined_neg = df_unit.join(rawdf.set_index('MeasDate'),on='MeasDate')
+        # print(joined_neg)
+
+        joined_df.update(joined_pos,errors='raise')
+        joined_df.update(joined_neg,errors='raise')
+        df.update(joined_df,errors='raise')
+        print('joined_df =',str(joined_df))
+
+    print(df)
+
 def testing_df_join():
     df = pd.DataFrame({'date': [\
                 dt.datetime(2021,3,20,21,2),dt.datetime(2021,3,21,9,16),\
@@ -21,7 +75,7 @@ def testing_df_join():
             dt.datetime(2021,3,25,20,1),dt.datetime(2021,3,26,15,0),dt.datetime(2021,3,27,7,33),\
                 dt.datetime(2021,3,20,21,17),dt.datetime(2021,3,21,9,16),\
         dt.datetime(2021,3,22,23,17),dt.datetime(2021,3,23,14,11),dt.datetime(2021,3,24,11,13),\
-            dt.datetime(2021,3,25,20,52),dt.datetime(2021,3,26,15,23),dt.datetime(2021,3,27,7,2)],\
+            dt.datetime(2021,3,25,20,52),dt.datetime(2021,3,26,12,2),dt.datetime(2021,3,27,0,2)],\
                 'unit':['26' for i in range(8)] + [ '15' for i in range(8)],
                 'info':['Some info on measurement' for i in range(16)]})
     # other = pd.DataFrame({'date': [dt.datetime(2021,3,20,21,17),dt.datetime(2021,3,21,9,16),\
@@ -36,36 +90,46 @@ def testing_df_join():
     # unit 15, in 12-hour clock
     unit15 = pd.DataFrame({'date': [dt.datetime(2021,3,20,9,17),dt.datetime(2021,3,21,9,16),\
         dt.datetime(2021,3,22,11,17),dt.datetime(2021,3,23,2,11),dt.datetime(2021,3,24,11,13),\
-            dt.datetime(2021,3,25,8,52),dt.datetime(2021,3,26,3,23),dt.datetime(2021,3,27,7,2)],\
+            dt.datetime(2021,3,25,8,52),dt.datetime(2021,3,26,12,2),dt.datetime(2021,3,27,12,2)],\
                 'data':[i+0.15 for i in range(8)]})
 
     units = [{'name':'15','df':unit15}, {'name':'26','df':unit26}]
 
     # add data column to df
     df['data'] = np.nan
+    # for testing ValueError exception
+    # df['data'] = [i+0.89 for i in range(len(df))]
 
     # add unit column to other
     # other['unit'] = '12'
 
     for unit in units:
-        df_unit = df.loc[df['unit']==unit['name'],:].copy()
+        unitname = unit['name']
+        print('Unit name =',unitname)
+        df_unit = df.loc[df['unit']==unitname,:].copy()
         other = unit['df']
 
         # raise warning if data already stored in data column
         if df_unit['data'].isnull().values.all():
             print('all nan')
         else:
-            print('WARNING! Overwriting data!')
-            print(df_unit['data'])
+            print(df_unit[df_unit['data']!=np.nan])
+            raise ValueError('Data appeared in unprocessed measurement info.')
 
         df_unit.drop(labels='data',axis=1,inplace=True)
 
-        joined_df = df_unit.join(other.set_index('date'),on='date')
-        print(joined_df)
-        other['date'] = other['date'] + dt.timedelta(hours=12)
-        print(other.head())
-        joined_12 = df_unit.join(other.set_index('date'),on='date')
-        print(joined_12)
+        # print('original other =',other)
+        # joined_df = df_unit.join(other.set_index('date'),on='date')
+        # print('joined_df',joined_df)
+        # other['date'] = other['date'] + dt.timedelta(hours=12)
+        # print('+12 h other =',other)
+        # joined_pos = df_unit.join(other.set_index('date'),on='date')
+        # print('joined_pos',joined_pos)
+        # other['date'] = other['date'] + dt.timedelta(days=-1)# hours=12 already added, net is -12 h
+        # print('-12 h other =',other)
+        # joined_neg = df_unit.join(other.set_index('date'),on='date')
+        # print('joined_neg',joined_neg)
+
         # joined_df = df.join(other.set_index(['date','unit']),on=['date','unit'])
         # other['date'] = other['date'] + dt.timedelta(hours=12)
         # print(other.head())
@@ -73,103 +137,38 @@ def testing_df_join():
         # print(joined_df)
         # print(joined_12)
 
-        joined_df.update(joined_12)
+        # print('original other =',other)
+        joined_df = df_unit.join(other.set_index('date'),on='date')
+        # print('joined_df',joined_df)
+        other['date'] = other['date'].apply(clock12_to_afternoon)
+        # print('other "converted" to 24h =',other)
+        joined_24 = df_unit.join(other.set_index('date'),on='date')
+        # print('joined_pos',joined_24)
+
+        joined_df.update(joined_24)
         df.update(joined_df)
-
+        print('joined_df =',str(joined_df))
     print(df)
 
-def save_raw_data():
-    """ Save a dataframe with raw data
-    Use pickle to save raw data in dataframe.
-    """
-    # load a list of dictionaries for positions and their IDs
-    nodelist = obsx.nodelist()
-     # load a list of dictionaries. 
-     # One key holds the dataframe. {featuresDF, position, timeperiod}
-    uffdfs = obsu.load_data()
-    
-    df = obsx.measurements_info()
+def testing_update():
+    pass
 
-    df['RawData'] = np.nan
+def clock12_to_afternoon(datetime):
+    # print(type(datetime),end='')
+    hour = datetime.hour
+    if hour < 12:
+        datetime = datetime.replace(hour=hour+12)
+        print(datetime)
+        return datetime
+    elif hour == 12:
+        datetime = datetime.replace(hour=0)
+        return datetime
+    else:
+        print('Not in 12h clock format?')
+        raise ValueError
 
-    for pos in uffdfs:
-        # add space between roller name and F/D
-        position = pos['position']
-        position_str = position[0:4] + ' ' + position[4]
-        # lookup the ID from the name
-        IDNode = next(node['IDNode'] for node in nodelist if node["NodeName"].startswith(position_str))
-        print(IDNode)
-
-        # get all row indices that belongs to the node
-        noderows = df.loc[(df['IDNode'] == IDNode)].index 
-
-        # print(type(df.iloc[noderows].MeasDate.iloc[0]))
-        # print(type(pos['featuresDF'].MeasDate.iloc[0]))
-
-        dates_df = df.iloc[noderows[0:len(pos['featuresDF'])]]['MeasDate'].reset_index(drop=True)
-        dates_pos = pos['featuresDF']['MeasDate'].reset_index(drop=True)
-        # print(dates_df)
-        # print(dates_pos)
-
-        # date_match = (dates_df == dates_pos + dates_df-dates_pos == dt.timedelta(hours=12) + \
-        #     dates_pos-dates_df == dt.timedelta(hours=12))
-
-        diff_array = dates_df-dates_pos
-        # print(diff_array)
-
-        acceptable_diff = np.array([dt.timedelta(hours=0),dt.timedelta(hours=12),\
-            dt.timedelta(days=-1,hours=12)], dtype="timedelta64[ms]")
-
-        match_dates = np.isin(diff_array,acceptable_diff)
-
-        if match_dates.all():
-            print("All 'MeasDate' match.")
-        else:
-            print("One or more 'MeasDate' does not match.")
-            for ind in range(len(match_dates)):
-                if not match_dates[ind]:
-                    print(dates_df[ind], end=' vs ')
-                    print(dates_pos[ind])
-
-        # print(date_match)
-
-        # match_0 = df.iloc[noderows[0:len(pos['featuresDF'])]][['MeasDate']].reset_index(drop=True)\
-        #      == pos['featuresDF'][['MeasDate']].reset_index(drop=True)
-             
-        # pos_p12 = pos['featuresDF'][['MeasDate']] + pd.DateOffset(hours=12)
-        # match_p12 = df.iloc[noderows[0:len(pos['featuresDF'])]][['MeasDate']].reset_index(drop=True)\
-        #      == pos_p12.reset_index(drop=True)
-        # pos_m12 = pos['featuresDF'][['MeasDate']] - pd.DateOffset(hours=12)
-        # match_m12 = df.iloc[noderows[0:len(pos['featuresDF'])]][['MeasDate']].reset_index(drop=True)\
-        #      == pos_m12.reset_index(drop=True)
-        # match_df = df.loc[np.all(df.iloc[noderows[0:len(pos['featuresDF'])-1]][['MeasDate']].values == pos['featuresDF'][['MeasDate']].values, axis=0)]
-        # match=pd.DataFrame(columns=['MeasDate'])
-        # match = np.any(match_0['MeasDate'].to_numpy(),match_p12['MeasDate'].to_numpy(),match_m12['MeasDate'].to_numpy())
-        # print(match)
-
-        # df = df.loc[np.all(df.values == df.values, axis=1),:]
-
-        # print(df.iloc[noderows][['MeasDate']].values == pos['featuresDF'][['MeasDate']].values)
-        # df['RawData'] = np.where((df.iloc[noderows][['MeasDate']].values == pos['featuresDF'][['MeasDate']].values),
-        # 'equal', 'nope')
-
-        # print(len(matching_time),'/',len(pos['featuresDF']))
-
-        # df.at[noderows,'RawData'] = noderows
-
-        # print(noderows)
-        # print(df.iloc[7:10])
-
-        # diff = df.iloc[noderows[0]].MeasDate-pos['featuresDF'].iloc[-1].MeasDate
-
-        # if diff < dt.timedelta(milliseconds=10):
-        #     print('less than 10 ms diff')
-
-        # df.iloc[0]['RawData'] = 'test'
-
-        # print(df[df['RawData']=='test'])
-        
-    print(df)
+    # else:
+    #     print('clock12_to_afternoon() only accepts datetime obj as input')
 
 if __name__ == '__main__':
     main()
