@@ -11,7 +11,46 @@ import datetime as dt
 import pandas as pd
 
 def main():
-    save_raw_data()
+    # save_raw_data()
+    testing_df_join()
+
+def testing_df_join():
+    df = pd.DataFrame({'date': [\
+                dt.datetime(2021,3,20,21,2),dt.datetime(2021,3,21,9,16),\
+        dt.datetime(2021,3,22,23,54),dt.datetime(2021,3,23,14,31),dt.datetime(2021,3,24,11,41),\
+            dt.datetime(2021,3,25,20,1),dt.datetime(2021,3,26,15,0),dt.datetime(2021,3,27,7,33),\
+                dt.datetime(2021,3,20,21,17),dt.datetime(2021,3,21,9,16),\
+        dt.datetime(2021,3,22,23,17),dt.datetime(2021,3,23,14,11),dt.datetime(2021,3,24,11,13),\
+            dt.datetime(2021,3,25,20,52),dt.datetime(2021,3,26,15,23),dt.datetime(2021,3,27,7,2)],\
+                'unit':['26' for i in range(8)] + [ '12' for i in range(8)],
+                'info':['Some info on measurement' for i in range(16)]})
+    # other = pd.DataFrame({'date': [dt.datetime(2021,3,20,21,17),dt.datetime(2021,3,21,9,16),\
+    #         dt.datetime(2021,3,25,20,52),dt.datetime(2021,3,26,15,23),dt.datetime(2021,3,27,7,2),\
+    #     dt.datetime(2021,3,22,23,17),dt.datetime(2021,3,23,14,11),dt.datetime(2021,3,24,11,13)],\
+    #             'data':[np.random.rand() for i in range(8)]})
+    # other in 12-hour clock
+    other = pd.DataFrame({'date': [dt.datetime(2021,3,20,9,17),dt.datetime(2021,3,21,9,16),\
+        dt.datetime(2021,3,22,11,17),dt.datetime(2021,3,23,2,11),dt.datetime(2021,3,24,11,13),\
+            dt.datetime(2021,3,25,8,52),dt.datetime(2021,3,26,3,23),dt.datetime(2021,3,27,7,2)],\
+                'data':[np.random.rand() for i in range(8)]})
+
+    # print(df.head())
+    # print(other.head())
+
+    # add unit column to other
+    other['unit'] = '12'
+
+    joined_df = df.join(other.set_index(['date','unit']),on=['date','unit'])
+    other['date'] = other['date'] + dt.timedelta(hours=12)
+    print(other.head())
+    joined_12 = df.join(other.set_index(['date','unit']),on=['date','unit'])
+
+    print(joined_df)
+    print(joined_12)
+
+    joined_df.update(joined_12)
+    df = joined_df
+    print(df)
 
 def save_raw_data():
     """ Save a dataframe with raw data
