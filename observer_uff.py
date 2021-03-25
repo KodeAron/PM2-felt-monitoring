@@ -26,12 +26,12 @@ path_pickles = '../data_observer/pickles/' # file path folder containing the fea
 
 def main():
     position = 'P001F'
-    timeperiod = '201027-210221'
-    convert_UFFs('201027-210221')
+    timeperiod = '201027-210325'
+    # convert_UFFs(timeperiod)
     # print(testlist)
-    # df = UFFfile_to_featuresDF(position,timeperiod)
+    # df = UFFfile_to_dataframe(position,timeperiod)
     df = load_data([position],timeperiod)
-    print(df[0]['featuresDF'])
+    print(df[0]['df'])
     # date = dt.datetime(2020,12,5,12)
     # datetime_list = [dt.datetime(2020,11,5,6,0), dt.datetime(2020,12,3,15,15),dt.datetime(2020,12,7,0,15)]
     # plot_features(df[0])
@@ -39,10 +39,10 @@ def main():
     #     clicked_time = gtol.point_click[0]
     #     print('clicked time point ',end='')
     #     print(clicked_time)
-    #     print(df[0]['featuresDF'].MeasDate[0] == clicked_time)
-    # print(df[0]['featuresDF']['MeasDate'].iloc[0])
-    # print(df[0]['featuresDF']['KURT'])
-    # print(gtol.count_breaches(df[0]['featuresDF']['KURT'],-0.5,2))
+    #     print(df[0]['df'].MeasDate[0] == clicked_time)
+    # print(df[0]['df']['MeasDate'].iloc[0])
+    # print(df[0]['df']['KURT'])
+    # print(gtol.count_breaches(df[0]['df']['KURT'],-0.5,2))
 
     # # AM/PM issue
     # data=UFFfile_to_UFFdata(position + '_A_' + timeperiod + '.uff')
@@ -94,7 +94,7 @@ def load_data(positions=[],timeperiod=''):
 def read_pickle_to_dataframe(listOfDataframes,filename):
     df = pd.read_pickle(path_pickles + filename)
     position,timeperiod = split_filename(filename)
-    listOfDataframes.append({'featuresDF':df, 'position':position, 'timeperiod':timeperiod})
+    listOfDataframes.append({'df':df, 'position':position, 'timeperiod':timeperiod})
 
 def convert_UFFs(timeperiod=''):
 # load UFF, convert to dataframe (with only interesting fields) and save to files
@@ -125,22 +125,22 @@ def UFFfile_to_featuresfile(sensPos_or_filename, timeperiod=''):
     in1len = len(sensPos_or_filename)
     if in1len<5 or (in1len==5 and len(timeperiod)!=13):
         # return error code if to short or missing timeperiod when position is given
-        featuresDF=-1     
+        df=-1     
     else:
         if in1len>5:
         # if position is long then treat as filename
             position,timeperiod = split_filename(sensPos_or_filename)
         else:
             sensPos_or_filename = position
-        featuresDF = UFFfile_to_featuresDF(position, timeperiod)
+        df = UFFfile_to_dataframe(position, timeperiod)
         result_filename = path_pickles + position + '_' + timeperiod
-        featuresDF.to_pickle(result_filename)
-    return featuresDF
+        df.to_pickle(result_filename)
+    return df
 
-def UFFfile_to_featuresDF(position, timeperiod):
+def UFFfile_to_dataframe(position, timeperiod):
     data = UFFfile_to_UFFdata(path_uffs + position + '_A_' + timeperiod + '.uff')
-    featuresDF = UFFdata_to_featuresDF(data)
-    return featuresDF
+    df = UFFdata_to_dataframe(data)
+    return df
 
 def UFFfile_to_UFFdata(filename):
     if not filename.startswith('../'):
@@ -149,24 +149,24 @@ def UFFfile_to_UFFdata(filename):
     UFFdata = uff_file.read_sets()
     return UFFdata
 
-def UFFdata_to_featuresDF(UFFdata):
+def UFFdata_to_dataframe(UFFdata):
     # rms, kurtosis
-    featuresDF = pd.DataFrame(columns=['MeasDate', 'RAW', 'RMS', 'KURT'])#,'x','data'])
+    df = pd.DataFrame(columns=['MeasDate', 'RawData']) #, 'RMS', 'KURT'])#,'x','data'])
 
     for i in range(len(UFFdata)):
         val_raw = UFFdata[i]['data']
-        val_rms = np.sqrt(np.mean(UFFdata[i]['data']**2))
-        val_kurtosis = spstats.kurtosis(np.abs(UFFdata[i]['data']))
+        # val_rms = np.sqrt(np.mean(UFFdata[i]['data']**2))
+        # val_kurtosis = spstats.kurtosis(np.abs(UFFdata[i]['data']))
         # save the calculated features in dataframe. Get datetime at id3 in data
-        featuresDF = featuresDF.append({'MeasDate':UFFdata[i]['id3'], 'RAW':val_raw,
-            'RMS':val_rms, 'KURT':val_kurtosis},#, 'x':data[i]['x'], 'data':data[i]['data']},
+        df = df.append({'MeasDate':UFFdata[i]['id3'], 'RawData':val_raw},
+            # 'RMS':val_rms, 'KURT':val_kurtosis},#, 'x':data[i]['x'], 'data':data[i]['data']},
             ignore_index=True)
 
     # convert MeasDate from string to datetime/timestamp object
-    featuresDF['MeasDate'] = pd.to_datetime(featuresDF['MeasDate'], format='%d-%m-%Y %H:%M:%S')
+    df['MeasDate'] = pd.to_datetime(df['MeasDate'], format='%d-%m-%Y %H:%M:%S')
     # reverse and reset index afterwards
-    featuresDF = featuresDF.sort_index(ascending=False, axis=0).reset_index(drop=True,inplace=False)
-    return featuresDF
+    df = df.sort_index(ascending=False, axis=0).reset_index(drop=True,inplace=False)
+    return df
 
 def plot_signal(location, datestring):
 # plot signal by specifying which sensor/file and what date
@@ -206,8 +206,8 @@ def plot_features(features):
     fig, ax = plt.subplots()
     tolerance = 5 # points
     if type(features) is dict and len(features):
-    # unpack if features is dict (containing featuresDF, position and timeperiod)
-        features = features['featuresDF']
+    # unpack if features is dict (containing df, position and timeperiod)
+        features = features['df']
     if type(features) is pd.DataFrame:
         MeasDate = features.MeasDate
         RMS = features.RMS
