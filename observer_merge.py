@@ -22,34 +22,60 @@ def testing_df_join():
                 dt.datetime(2021,3,20,21,17),dt.datetime(2021,3,21,9,16),\
         dt.datetime(2021,3,22,23,17),dt.datetime(2021,3,23,14,11),dt.datetime(2021,3,24,11,13),\
             dt.datetime(2021,3,25,20,52),dt.datetime(2021,3,26,15,23),dt.datetime(2021,3,27,7,2)],\
-                'unit':['26' for i in range(8)] + [ '12' for i in range(8)],
+                'unit':['26' for i in range(8)] + [ '15' for i in range(8)],
                 'info':['Some info on measurement' for i in range(16)]})
     # other = pd.DataFrame({'date': [dt.datetime(2021,3,20,21,17),dt.datetime(2021,3,21,9,16),\
     #         dt.datetime(2021,3,25,20,52),dt.datetime(2021,3,26,15,23),dt.datetime(2021,3,27,7,2),\
     #     dt.datetime(2021,3,22,23,17),dt.datetime(2021,3,23,14,11),dt.datetime(2021,3,24,11,13)],\
     #             'data':[np.random.rand() for i in range(8)]})
-    # other in 12-hour clock
-    other = pd.DataFrame({'date': [dt.datetime(2021,3,20,9,17),dt.datetime(2021,3,21,9,16),\
+    # unit 26, in 12-horu clock
+    unit26 = pd.DataFrame({'date': [dt.datetime(2021,3,20,9,2),dt.datetime(2021,3,21,9,16),\
+        dt.datetime(2021,3,22,11,54),dt.datetime(2021,3,23,2,31),dt.datetime(2021,3,24,11,41),\
+            dt.datetime(2021,3,25,8,1),dt.datetime(2021,3,26,3,0),dt.datetime(2021,3,27,7,33)],\
+                'data':[i+0.26 for i in range(8)]})
+    # unit 15, in 12-hour clock
+    unit15 = pd.DataFrame({'date': [dt.datetime(2021,3,20,9,17),dt.datetime(2021,3,21,9,16),\
         dt.datetime(2021,3,22,11,17),dt.datetime(2021,3,23,2,11),dt.datetime(2021,3,24,11,13),\
             dt.datetime(2021,3,25,8,52),dt.datetime(2021,3,26,3,23),dt.datetime(2021,3,27,7,2)],\
-                'data':[np.random.rand() for i in range(8)]})
+                'data':[i+0.15 for i in range(8)]})
 
-    # print(df.head())
-    # print(other.head())
+    units = [{'name':'15','df':unit15}, {'name':'26','df':unit26}]
+
+    # add data column to df
+    df['data'] = np.nan
 
     # add unit column to other
-    other['unit'] = '12'
+    # other['unit'] = '12'
 
-    joined_df = df.join(other.set_index(['date','unit']),on=['date','unit'])
-    other['date'] = other['date'] + dt.timedelta(hours=12)
-    print(other.head())
-    joined_12 = df.join(other.set_index(['date','unit']),on=['date','unit'])
+    for unit in units:
+        df_unit = df.loc[df['unit']==unit['name'],:].copy()
+        other = unit['df']
 
-    print(joined_df)
-    print(joined_12)
+        # raise warning if data already stored in data column
+        if df_unit['data'].isnull().values.all():
+            print('all nan')
+        else:
+            print('WARNING! Overwriting data!')
+            print(df_unit['data'])
 
-    joined_df.update(joined_12)
-    df = joined_df
+        df_unit.drop(labels='data',axis=1,inplace=True)
+
+        joined_df = df_unit.join(other.set_index('date'),on='date')
+        print(joined_df)
+        other['date'] = other['date'] + dt.timedelta(hours=12)
+        print(other.head())
+        joined_12 = df_unit.join(other.set_index('date'),on='date')
+        print(joined_12)
+        # joined_df = df.join(other.set_index(['date','unit']),on=['date','unit'])
+        # other['date'] = other['date'] + dt.timedelta(hours=12)
+        # print(other.head())
+        # joined_12 = df.join(other.set_index(['date','unit']),on=['date','unit'])
+        # print(joined_df)
+        # print(joined_12)
+
+        joined_df.update(joined_12)
+        df.update(joined_df)
+
     print(df)
 
 def save_raw_data():
