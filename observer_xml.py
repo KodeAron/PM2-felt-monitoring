@@ -19,8 +19,8 @@ import generaltools as gtol
 
 # global variables
 path_data = '../data_observer/xml/' # folder containing the raw data
-path_features = '../data_observer/features_dfs/' # folder containing the features files
-default_filename = '1aPressT_Acc_ej-nyp_201001-210315'
+path_features = '../data_observer/pickles/' # folder containing the features files
+default_filename = '1aPressT_Acc_ej-nyp_201015-210325'
 
 def main():
     filename = '1aPressT_Acc_ej-nyp_201001-210315'
