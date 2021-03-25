@@ -106,6 +106,7 @@ def testing_df_join():
     for unit in units:
         unitname = unit['name']
         print('Unit name =',unitname)
+        # df_unit will keep index, important! i.e. no reindexing
         df_unit = df.loc[df['unit']==unitname,:].copy()
         other = unit['df']
 
@@ -139,11 +140,24 @@ def testing_df_join():
 
         # print('original other =',other)
         joined_df = df_unit.join(other.set_index('date'),on='date')
-        # print('joined_df',joined_df)
+        print('joined_df',joined_df)
         other['date'] = other['date'].apply(clock12_to_afternoon)
         # print('other "converted" to 24h =',other)
         joined_24 = df_unit.join(other.set_index('date'),on='date')
-        # print('joined_pos',joined_24)
+        print('joined_24',joined_24)
+
+        # check for overlaps
+        indices1 = joined_df.loc[joined_df['data'].notnull()].index 
+        indices2 = joined_24.loc[joined_24['data'].notnull()].index 
+        overlap = []
+        for elem in indices1:
+            if elem in indices2:
+                overlap.append(elem)
+        if len(overlap)>0:
+            print('Warning! Overlap detected. Data may be lost.')
+            print(overlap)
+            print(joined_df.loc[overlap])
+            print(joined_24.loc[overlap])
 
         joined_df.update(joined_24)
         df.update(joined_df)
@@ -154,11 +168,9 @@ def testing_update():
     pass
 
 def clock12_to_afternoon(datetime):
-    # print(type(datetime),end='')
     hour = datetime.hour
     if hour < 12:
         datetime = datetime.replace(hour=hour+12)
-        print(datetime)
         return datetime
     elif hour == 12:
         datetime = datetime.replace(hour=0)
