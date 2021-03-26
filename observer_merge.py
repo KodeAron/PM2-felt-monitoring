@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*- python3
-""" Merge data from uff and xml observer files
+""" Merge data from uff and xml observer files to one dataframe
 
 Created on Mar 23 2021 15:48
 @author: Aron, Luleå University of Technology
@@ -48,8 +48,6 @@ def save_raw_data():
 
         df_unit = df.loc[df['IDNode']==IDNode,:].copy()
         rawdf = pos['df']
-
-        print(rawdf.columns)
 
         # raise warning if data already stored in data column
         if df_unit['RawData'].isnull().values.all():
