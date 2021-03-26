@@ -22,12 +22,11 @@ import generaltools as gtol
 path_uffs = '../data_observer/uff/'
 path_pickles = '../data_observer/pickles/' # file path folder containing the features files
 # point_click = tuple() # holds the location of the latest click on line in plot
-
+default_timeperiod = '201027-210221' #'201027-210325'
 
 def main():
     position = 'P001F'
-    timeperiod = '201027-210221'#'201027-210325'
-    testlist = convert_UFFs(timeperiod)
+    testlist = convert_UFFs()
     print(testlist)
     # df = UFFfile_to_dataframe(position,timeperiod)
     # df = load_data([position],timeperiod)
@@ -96,7 +95,7 @@ def read_pickle_to_dataframe(listOfDataframes,filename):
     position,timeperiod = split_filename(filename)
     listOfDataframes.append({'df':df, 'position':position, 'timeperiod':timeperiod})
 
-def convert_UFFs(timeperiod='',savefiles=False):
+def convert_UFFs(timeperiod=default_timeperiod,savefiles=False):
 # load UFF, convert to dataframe (with only interesting fields) and save to files
     listOfDataframes = []
     # search through folder for filenames
