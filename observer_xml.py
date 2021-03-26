@@ -24,20 +24,18 @@ default_filename = '1aPressT_Acc_ej-nyp_201015-210325'
 
 def main():
     filename = '1aPressT_Acc_ej-nyp_201001-210315'
-    xme_file = filename + '.xme'
-    xmd_file = filename + '.xmd'
     # list_of_nodes = nodelist()
     # print(list_of_nodes)
-    df = measurements_info()
+    df = measurements_info(filename)
     print(df)
     print(type(df.iloc[1].MeasDate))
     # plot_signal_from_xmd(xmd_file,'4624','2020-12-18')
 
-def measurements_info(xmdfilename=default_filename+'.xmd'):
+def measurements_info(xmdfilename=default_filename):
     """ 
     Extract all measurements and information; such as MeasID, IDNode, Speed; for each.
     """
-    full_path = path_data + xmdfilename
+    full_path = path_data + xmdfilename + '.xmd'
     tree = etree.parse(full_path)
     root = tree.getroot()
 
@@ -58,8 +56,8 @@ def measurements_info(xmdfilename=default_filename+'.xmd'):
     meas_df = meas_df.sort_values(by='MeasDate').reset_index(drop=True,inplace=False)
     return meas_df
 
-def plot_signal_from_xmd(IDNode, datestring, xmdfilename=default_filename+'.xmd'):
-    full_path = path_data + xmdfilename
+def plot_signal_from_xmd(IDNode, datestring, xmdfilename=default_filename):
+    full_path = path_data + xmdfilename + '.xmd'
     tree = etree.parse(full_path)
     root = tree.getroot()
     
