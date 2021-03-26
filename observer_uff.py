@@ -22,7 +22,7 @@ import generaltools as gtol
 path_uffs = '../data_observer/uff/'
 path_pickles = '../data_observer/pickles/' # file path folder containing the features files
 # point_click = tuple() # holds the location of the latest click on line in plot
-default_timeperiod = '201027-210221' #'201027-210325'
+default_timeperiod = '201027-210325' #'201027-210221'
 
 def main():
     position = 'P001F'

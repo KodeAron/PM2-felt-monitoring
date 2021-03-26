@@ -24,12 +24,13 @@ def save_raw_data():
     nodelist = obsx.nodelist()
     # load a list of dictionaries. 
     # One key holds the dataframe. {featuresDF, position, timeperiod}
-    uffdfs = obsu.load_data()
+    uffdfs = obsu.convert_UFFs()
     
     df = obsx.measurements_info()
 
     # add data column to df
     df['RawData'] = np.nan
+    df['NodeName'] = np.nan
     loaded_nodes = [] # save which nodes that have been load to prevent loading duplicates.
 
     for pos in uffdfs:
@@ -78,6 +79,8 @@ def save_raw_data():
             print(joined_24.loc[overlap])
 
         joined_df.update(joined_24)
+        # add NodeName (as string), in addition to already available IDNode
+        joined_df['NodeName'] = position
         df.update(joined_df)
 
     df.to_pickle(picklefilepath)
