@@ -10,7 +10,7 @@ import numpy as np
 import datetime as dt
 import pandas as pd
 
-picklefilename = '../data_observer/pickles/1aPressT_Acc_ej-nyp_201015-210325'
+picklefilepath = '../data_observer/pickles/' + obsx.default_filename #'1aPressT_Acc_ej-nyp_201015-210325'
 
 def main():
     save_raw_data()
@@ -40,7 +40,9 @@ def save_raw_data():
         # lookup the ID from the name
         IDNode = next(node['IDNode'] for node in nodelist if node["NodeName"].startswith(position_str))
         if IDNode in loaded_nodes:
-            raise ValueError('Loaded node that have already been merged.')
+            continue # skip to next position. 
+            # Beware that this may meen skipping data that has not been loaded if the 
+            # raise ValueError('Loaded node that have already been merged.')
         print(position,'=',IDNode)
         loaded_nodes.append(IDNode) # save that the node have been loaded
 
@@ -80,7 +82,7 @@ def save_raw_data():
         joined_df.update(joined_24)
         df.update(joined_df)
 
-    df.to_pickle(picklefilename)
+    df.to_pickle(picklefilepath)
     print(df.head())
 
 def testing_df_join():
