@@ -65,10 +65,10 @@ def load_data(positions=[],timeperiod=''):
     if len(positions)==0 and len(timeperiod)==0:
         converted_files = []
         for entry in dirs:
-            # print(entry.name) # testing
-            #load dataframe from file
-            read_pickle_to_dataframe(listOfDataframes,entry.name)
-            converted_files.append(entry.name)
+            if entry.name.startswith('P'): # do not read the pickle that observer_merge.py creates
+                #load dataframe from file
+                read_pickle_to_dataframe(listOfDataframes,entry.name)
+                converted_files.append(entry.name)
         print('Loaded files: ',end='')
         print(converted_files)
     else: # else check if specified positions are available in folder
