@@ -36,7 +36,8 @@ def features():
     
     # check for missing data
     if df[df['RawData'].isnull()].empty:
-        print('No missing raw data.')
+        # print('No missing raw data.')
+        pass
     else:
         print('Missing data')
         print(df[df['RawData'].isnull()])
@@ -54,27 +55,36 @@ def features():
     # drop some columns
     df = df.drop(labels=['MeasValue','RawData','IDNode'],axis=1,inplace=False)
 
-    # group measurements that were performed close in time
-    # df_group = df.set_index('MeasDate').groupby(pd.Grouper(freq='H')) #['kurtosis'].apply(list).dropna()
-    # df_group = df.groupby(by=['MeasHour','IDNode']) #['rms','kurtosis'].apply(list)
-    # print(df_group)
-
     # reshape dataframe
     df_unstack = df.set_index(['MeasHour','NodeName']).unstack(level=-1)
 
     # warning if speed std is too big
-    speed_std_threshold = 40
+    speed_std_threshold = 20
     speed_std = df_unstack.Speed.astype(float).std(axis=1) > speed_std_threshold
     if speed_std.any():
-        print('Big speed std:')
+        print('Speed std > ',str(speed_std_threshold))
         print(df_unstack[speed_std].Speed)
         # drop the rows where the std of speed exceeds the threshold
         df_unstack = df_unstack[speed_std==0]
 
+    # calculate average speed and add in column
     df_unstack['AverageSpeed'] = df_unstack.Speed.astype(float).mean(axis=1)
-    print(df_unstack.columns)
-    print(df_unstack.iloc[1])
+    # drop speed column
+    df_unstack.drop(labels=['Speed'],axis=1,inplace=True)
 
+    # replace index with first MeasDate, i.e. minimum date for each row
+    mindate = df_unstack.MeasDate.min(axis=1)
+    df_unstack = df_unstack.set_index(mindate)
+
+    # add last MeasDate
+    df_unstack['LastMeasDate'] = df_unstack.MeasDate.max(axis=1)
+    # add difference between first and last MeasDate. dt.seconds converts it to seconds
+    df_unstack['DiffMeasDate'] = (df_unstack.MeasDate.max(axis=1)-df_unstack.MeasDate.min(axis=1)).dt.seconds
+
+    # drop MeasDate column
+    df_unstack.drop(labels=['MeasDate'],axis=1,inplace=True)
+
+    return df_unstack
 
 def vec_rms(data_array):
     val_rms = np.sqrt(np.mean(data_array**2))
