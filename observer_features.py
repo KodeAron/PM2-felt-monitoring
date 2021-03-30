@@ -28,7 +28,7 @@ def features():
     # print(df[df['NodeName']=='P303D'].head()) # to check if StorageReason=1 really is larm, seems so'
 
     # delete larm measurements, i.e. only keep sccheduled (StorageReason=0)
-    df = df[df['StorageReason'] == '0'] #.reset_index(drop=True,inplace=False)
+    df = df[df['StorageReason'] == '0'].drop(labels='StorageReason',axis=1,inplace=False) #.reset_index(drop=True,inplace=False)
         #.sort_values(by=['MeasDate','IDNode'])
 
     # remove dates before 2020-11-04
@@ -48,9 +48,22 @@ def features():
     # # print measurements that belongs together
     # print(df[df['MeasDate'].dt.floor(freq = 'D') == dt.datetime(2020,11,4)])
 
+    # add column where datetime is floored to hour to simplify grouping/combining
+    df['MeasHour'] = df['MeasDate'].dt.floor(freq='H')
+
+    # drop some columns
+    df = df.drop(labels=['MeasValue','RawData','IDNode'],axis=1,inplace=False)
+
     # group measurements that were performed close in time
-    df.set_index('MeasDate').groupby(pd.Grouper(freq='H'))
-    print(df)
+    # df_group = df.set_index('MeasDate').groupby(pd.Grouper(freq='H')) #['kurtosis'].apply(list).dropna()
+    # df_group = df.groupby(by=['MeasHour','IDNode']) #['rms','kurtosis'].apply(list)
+    # print(df_group)
+
+    # reshape dataframe
+    df_unstack = df.set_index(['MeasHour','NodeName']).unstack(level=-1)
+    df_unstack['AverageSpeed'] = df_unstack.Speed.astype(float).mean(axis=1)
+    print(df_unstack.columns)
+    print(df_unstack.iloc[1])
 
 def vec_rms(data_array):
     val_rms = np.sqrt(np.mean(data_array**2))
