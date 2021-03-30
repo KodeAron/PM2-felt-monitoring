@@ -27,22 +27,26 @@ def features():
 
     # print(df[df['NodeName']=='P303D'].head()) # to check if StorageReason=1 really is larm, seems so'
 
-    df['rms'] = df['RawData'].apply(vec_rms)
-    df['kurtosis'] = df['RawData'].apply(vec_kurtosis)
-
     # delete larm measurements, i.e. only keep sccheduled (StorageReason=0)
     df = df[df['StorageReason'] == '0'] #.reset_index(drop=True,inplace=False)
         #.sort_values(by=['MeasDate','IDNode'])
 
-    # # print measurements that belongs together
-    # print(df[df['MeasDate'].dt.floor(freq = 'D') == dt.datetime(2020,11,4)])
-
     # remove dates before 2020-11-04
     df = df[df['MeasDate'] > dt.datetime(2020,11,4)].reset_index(drop=True,inplace=False)
-    print(df)
-
+    
     # check for missing data
-    print(df[df['RawData'].isnull()])
+    if df[df['RawData'].isnull()].empty:
+        print('No missing raw data.')
+    else:
+        print('Missing data')
+        print(df[df['RawData'].isnull()])
+
+    # calculate rms and kurtosis and add result in new columns
+    df['rms'] = df['RawData'].apply(vec_rms)
+    df['kurtosis'] = df['RawData'].apply(vec_kurtosis)
+
+    # # print measurements that belongs together
+    # print(df[df['MeasDate'].dt.floor(freq = 'D') == dt.datetime(2020,11,4)])
 
     # group measurements that were performed close in time
     df.set_index('MeasDate').groupby(pd.Grouper(freq='H'))
