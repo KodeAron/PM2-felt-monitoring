@@ -61,9 +61,20 @@ def features():
 
     # reshape dataframe
     df_unstack = df.set_index(['MeasHour','NodeName']).unstack(level=-1)
+
+    # warning if speed std is too big
+    speed_std_threshold = 40
+    speed_std = df_unstack.Speed.astype(float).std(axis=1) > speed_std_threshold
+    if speed_std.any():
+        print('Big speed std:')
+        print(df_unstack[speed_std].Speed)
+        # drop the rows where the std of speed exceeds the threshold
+        df_unstack = df_unstack[speed_std==0]
+
     df_unstack['AverageSpeed'] = df_unstack.Speed.astype(float).mean(axis=1)
     print(df_unstack.columns)
     print(df_unstack.iloc[1])
+
 
 def vec_rms(data_array):
     val_rms = np.sqrt(np.mean(data_array**2))
