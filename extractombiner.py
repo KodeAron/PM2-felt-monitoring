@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*- python3
-""" Calculate features for each 
+""" Extract, calculate features and combine data into one dataframe
+
+Observer data: calculate features and restructre so that measurements 
+performed close in time are grouped together. Sorted on first MeasDate for each group.
 
 Created on Mar 26 2021 08:20
 @author: Aron, Luleå University of Technology
