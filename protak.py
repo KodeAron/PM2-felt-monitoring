@@ -25,9 +25,9 @@ def load_data(filename=protakfilepath,
     df = pd.read_excel(filename,header=6)
     # create new df fitlered on Reason in reasonfilter
     # Trimproblem, Massakladd, Hål. More relevant Reason ??
-    df = df[df.Reason.isin(reasonfilter)].copy().reset_index(drop=True,inplace=False)
+    df = df[df.Reason.isin(reasonfilter)].reset_index(drop=True,inplace=False)
     # remove empty columns
-    df.dropna(axis=1, how='all', inplace=True) 
+    df.dropna(axis=1, how='all', inplace=True)
 
     # convert to datetime format
     df['StartDate'] = pd.to_datetime(df['StartDate'], format='%d-%m-%Y %H:%M:%S')
