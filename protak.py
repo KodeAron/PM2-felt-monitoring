@@ -10,15 +10,20 @@ import pandas as pd
 import numpy as np
 
 protakfilepath = '../data_protak/ProTAK statistics raw PM2 2020-10-30 - 2021-03-26.xlsx'
+protakdf = pd.DataFrame
 
 def main():
     # filename = '../data_protak/ProTAK PM2 Pressektion 201001-210228.xlsx'
     df = load_data()
     # print(df[df.Reason=='Trimproblem'])
-    boolean_date_plot(df)
+    # boolean_date_plot(df)
+    dtdf = pd.DataFrame({'year': [2020, 2021],'month': [11, 3],'day': [4, 5],'hours':[13, 15]})
+    dtdf = pd.to_datetime(dtdf)
+    date = dtdf.iloc[0]
+    boolval = check_datetime_for_problem(date,problem='Trimproblem')
+    print('Problem at',date,'?',boolval)
 
-
-def load_data(filename=protakfilepath)
+def load_data(filename=protakfilepath):
     # , reasonfilter=['Trimproblem']):
     
     # read operation data from spreadsheet and return as dataframe
@@ -32,6 +37,8 @@ def load_data(filename=protakfilepath)
     # convert to datetime format
     df['StartDate'] = pd.to_datetime(df['StartDate'], format='%d-%m-%Y %H:%M:%S')
     df['EndDate'] = pd.to_datetime(df['EndDate'], format='%d-%m-%Y %H:%M:%S')
+    global protakdf
+    protakdf = df
     return df
     
 def boolean_date_plot(dataframe):
@@ -42,14 +49,31 @@ def boolean_date_plot(dataframe):
     plt.gca().xaxis.set_major_formatter(myFmt)
     plt.show()
 
-# def plotData(dataframe):
-#     pass
-
-def check_datetime_for_problem(dataframe,datetime):
-    # check if specific point in time had any problem
+def check_datetime_for_problem(datetime,problem=''):
+    # check if specific point in time had specified problem
     # return boolean value and Reason
+    global protakdf
+    if protakdf.empty:
+        print('<check_datetime_for_problem>',end='')
+        print('Empty df. Check if you have run load_data().')
+    else:
+        # reduce protakdf to selected columns
+        df = protakdf[['StartDate','EndDate','Reason']]
+        # reduce df to the rows for the specific problem
+        df = df[df.Reason == problem].reset_index(drop=True,inplace=False)
 
-    return problem_bool, reasondescription
+        # create df with all (at most one?) rows containing the specified problem
+        print(df.loc[(df.EndDate>datetime)])
+        print(df.loc[(df.StartDate<datetime)])
+        df = df.loc[(df.StartDate<datetime) & (datetime<df.EndDate)]
+        print(df)
+
+        if df.empty:
+            problem_bool=False
+        else:
+            problem_bool=True
+
+    return problem_bool #, reasondescription
 
 if __name__ == '__main__':
     main()
