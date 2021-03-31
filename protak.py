@@ -49,7 +49,7 @@ def boolean_date_plot(dataframe):
     plt.gca().xaxis.set_major_formatter(myFmt)
     plt.show()
 
-def check_datetime_for_problem(datetime,problem=''):
+def check_datetime_for_problem(datetime,problem='Trimproblem'):
     # check if specific point in time had specified problem
     # return boolean value and Reason
     df = check_datetime_for_log_entries(datetime)
