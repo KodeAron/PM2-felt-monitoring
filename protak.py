@@ -52,7 +52,6 @@ def check_datetime_for_problem(datetime,problem='Trimproblem'):
     # check if specific point in time had specified problem
     # return boolean value and Reason
     df = check_datetime_for_log_entries(datetime)
-    print(df)
     # reduce df to the rows for the specific problem
     df = df[df.Reason == problem].reset_index(drop=True,inplace=False)
 
