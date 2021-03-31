@@ -52,28 +52,32 @@ def boolean_date_plot(dataframe):
 def check_datetime_for_problem(datetime,problem=''):
     # check if specific point in time had specified problem
     # return boolean value and Reason
+    df = check_datetime_for_log_entries(datetime)
+    print(df)
+    # reduce df to the rows for the specific problem
+    df = df[df.Reason == problem].reset_index(drop=True,inplace=False)
+
+    if df.empty:
+        problem_bool=False
+    else:
+        problem_bool=True
+
+    return problem_bool
+
+def check_datetime_for_log_entries(datetime):
+    # check if datetime has any log entries in the protak file
+    # return dataframe
     global protakdf
     if protakdf.empty:
-        print('<check_datetime_for_problem>',end='')
+        print('<check_datetime_for_log_entries>',end='')
         print('Empty df. Check if you have run load_data().')
     else:
-        # reduce protakdf to selected columns
-        df = protakdf[['StartDate','EndDate','Reason']]
-        # reduce df to the rows for the specific problem
-        df = df[df.Reason == problem].reset_index(drop=True,inplace=False)
-
+        # # reduce protakdf to selected columns
+        # df = protakdf[['StartDate','EndDate','Reason']
         # create df with all (at most one?) rows containing the specified problem
-        print(df.loc[(df.EndDate>datetime)])
-        print(df.loc[(df.StartDate<datetime)])
-        df = df.loc[(df.StartDate<datetime) & (datetime<df.EndDate)]
-        print(df)
-
-        if df.empty:
-            problem_bool=False
-        else:
-            problem_bool=True
-
-    return problem_bool #, reasondescription
+        df = protakdf.loc[(protakdf.StartDate<datetime) & (datetime<protakdf.EndDate)]
+        return df
+    
 
 if __name__ == '__main__':
     main()
