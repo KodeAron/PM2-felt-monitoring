@@ -18,14 +18,14 @@ def main():
     boolean_date_plot(df)
 
 
-def load_data(filename=protakfilepath,
-    reasonfilter=['Trimproblem']):
+def load_data(filename=protakfilepath)
+    # , reasonfilter=['Trimproblem']):
     
     # read operation data from spreadsheet and return as dataframe
     df = pd.read_excel(filename,header=6)
     # create new df fitlered on Reason in reasonfilter
     # Trimproblem, Massakladd, Hål. More relevant Reason ??
-    df = df[df.Reason.isin(reasonfilter)].reset_index(drop=True,inplace=False)
+    # df = df[df.Reason.isin(reasonfilter)].reset_index(drop=True,inplace=False)
     # remove empty columns
     df.dropna(axis=1, how='all', inplace=True)
 
