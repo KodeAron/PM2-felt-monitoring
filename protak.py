@@ -10,11 +10,12 @@ import pandas as pd
 import numpy as np
 
 protakfilepath = '../data_protak/ProTAK statistics raw PM2 2020-10-30 - 2021-03-26.xlsx'
-protakdf = pd.DataFrame
+# protakdf = pd.DataFrame
 
 def main():
     # filename = '../data_protak/ProTAK PM2 Pressektion 201001-210228.xlsx'
-    df = load_data()
+    # global protakdf
+    # protakdf = load_data()
     # print(df[df.Reason=='Trimproblem'])
     # boolean_date_plot(df)
     dtdf = pd.DataFrame({'year': [2020, 2021],'month': [11, 3],'day': [4, 5],'hours':[13, 15]})
@@ -37,8 +38,8 @@ def load_data(filename=protakfilepath):
     # convert to datetime format
     df['StartDate'] = pd.to_datetime(df['StartDate'], format='%d-%m-%Y %H:%M:%S')
     df['EndDate'] = pd.to_datetime(df['EndDate'], format='%d-%m-%Y %H:%M:%S')
-    global protakdf
-    protakdf = df
+    # global protakdf
+    # protakdf = df
     return df
     
 def boolean_date_plot(dataframe):
@@ -78,6 +79,8 @@ def check_datetime_for_log_entries(datetime):
         df = protakdf.loc[(protakdf.StartDate<datetime) & (datetime<protakdf.EndDate)]
         return df
     
+# always run this. import or not.
+protakdf = load_data()
 
 if __name__ == '__main__':
     main()
