@@ -14,8 +14,6 @@ protakfilepath = '../data_protak/ProTAK statistics raw PM2 2020-10-30 - 2021-03-
 
 def main():
     # filename = '../data_protak/ProTAK PM2 Pressektion 201001-210228.xlsx'
-    # global protakdf
-    # protakdf = load_data()
     # print(df[df.Reason=='Trimproblem'])
     # boolean_date_plot(df)
     dtdf = pd.DataFrame({'year': [2020, 2021],'month': [11, 3],'day': [4, 5],'hours':[13, 15]})
