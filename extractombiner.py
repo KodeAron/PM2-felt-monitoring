@@ -27,7 +27,7 @@ def combiner():
     df = features()
     # add column with bool values for Trimproblem
     df['Trimproblem'] = df.LastMeasDate.apply(protak.check_datetime_for_problem)
-    print(df)
+    return df
 
 def features():
     # calculate features for each node and strip non-interesting columns,

@@ -13,19 +13,10 @@ from matplotlib import gridspec
 import numpy as np
 
 import generaltools as gtol
-import observer
-import protak
-import feltdata
+import extractombiner as extcom
 
 def main():
-    # stackOverflowTest()
-    df_observer = observer.load_data(positions = ['P001D'], timeperiod = '201027-210221')
-    df_protak = protak.load_data()
-    df_felt = feltdata.load_data()
-    # print(df_protak.columns)
-    plotVibNLogg(df_observer,df_protak, df_felt)
-    # print(df_observer)
-    # doublePlot([df_observer,df_protak], ['RMS','KURT'],['trimproblem'])#,'massakladd'
+    df = extcom.combiner()
 
 def plotVibNLogg(df_observer, df_protak, df_felt):
 
