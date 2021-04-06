@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import pandas as pd
 from matplotlib import gridspec
+from matplotlib import ticker
 import numpy as np
 
 import generaltools as gtol
@@ -30,9 +31,9 @@ def plot_merged_df(df, df_felt):
 
     fig = plt.figure()
     # set height ratios for subplots
-    gs = gridspec.GridSpec(2, 1, height_ratios=[2, 1]) 
+    gs = gridspec.GridSpec(3, 1, height_ratios=[2, 0.4, 1]) 
 
-    # the first subplot
+    ## first subplot
     ax0 = plt.subplot(gs[0])
     # line0, = ax0.plot(df_vibsensor.Datetime, df_vibsensor.RMS, color='r', label="RMS",picker=True)
     # line1, = ax0.plot(df_vibsensor.Datetime, df_vibsensor.KURT, color='g', label="kurtosis",picker=True)
@@ -45,23 +46,29 @@ def plot_merged_df(df, df_felt):
         line, = ax0.plot(df.index, df[feature,column], color='r', label=feature,picker=True)
         # linelist[i] = line
         # i += 1
+    ax0.set_ylim(0,0.4)
 
-    # the second subplot
-    # shared axis X
+    ## second subplot
     ax1 = plt.subplot(gs[1], sharex = ax0)
     line2, = ax1.plot(df.index, df['Trimproblem'],'-', color='b',label='trimproblem',picker=True)
+    ## third subplot
+    # shared axis X
+    ax2 = plt.subplot(gs[2], sharex = ax0)
+    line3, = ax2.plot(df.index, df['AverageSpeed'],'-', color='g',label='Avg.speed',picker=True)
     # myFmt = mdates.DateFormatter('%d/%m %H:%M') # select format of datetime
     # plt.ax0.xaxis.set_major_formatter(myFmt)
     plt.setp(ax0.get_xticklabels(), visible=False)
+    plt.setp(ax1.get_xticklabels(), visible=False)
     # remove last tick label for the second subplot
-    yticks = ax1.yaxis.get_major_ticks()
-    yticks[-1].label1.set_visible(False)
+    # yticks = ax1.yaxis.get_major_ticks()
+    # yticks[-1].label1.set_visible(False)
+    ax1.yaxis.set_major_locator(ticker.NullLocator())
 
     # felt replacements
     first_date = df.index[0]
     replacements = feltdata.replacement_list(df_felt,first_date)
-    ax0.vlines(replacements, -2, 9, colors='k', linestyles='solid', label='replacements')
-    ax1.vlines(replacements, 0.8, 1.2, colors='k', linestyles='solid', label='replacements')
+    ax0.vlines(replacements, -0.2, 0.2, colors='k', linestyles='solid', label='replacements')
+    ax1.vlines(replacements, 0, 1, colors='k', linestyles='solid', label='replacements')
     
     myFmt = mdates.DateFormatter('%d/%m') # select format of datetime
     ax1.xaxis.set_major_formatter(myFmt)
