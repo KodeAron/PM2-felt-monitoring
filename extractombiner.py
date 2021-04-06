@@ -8,15 +8,26 @@ Created on Mar 26 2021 08:20
 @author: Aron, Luleå University of Technology
 """
 import pandas as pd
-import observer_merge as obsm
 import numpy as np
 import scipy.stats as spstats 
 import datetime as dt
 
+import observer_merge as obsm
+import protak
+import feltdata
+
 picklefilepath = obsm.picklefilepath # retrieve file location from observer_merge.py
 
 def main():
-    features()
+    # features()
+    combiner()
+
+def combiner():
+    # get df from observer data
+    df = features()
+    # add column with bool values for Trimproblem
+    df['Trimproblem'] = df.LastMeasDate.apply(protak.check_datetime_for_problem)
+    print(df)
 
 def features():
     # calculate features for each node and strip non-interesting columns,
