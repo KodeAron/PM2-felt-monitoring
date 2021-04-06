@@ -14,8 +14,10 @@ import numpy as np
 
 import generaltools as gtol
 import extractombiner as extcom
+import feltdata
 
 def main():
+    df_felt = feltdata.load_data()
     df = extcom.combiner()
 
 def plotVibNLogg(df_observer, df_protak, df_felt):
