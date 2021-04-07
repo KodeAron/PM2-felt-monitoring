@@ -43,10 +43,17 @@ def plot_merged_df(df, df_felt):
     # line1, = ax0.plot(df.index, df[feature], color='r', label=feature,picker=True)
     i = 0
     for column in df[feature]:
-        line, = ax0.plot(df.index, df[feature,column], color='r', label=feature,picker=True)
+        line, = ax0.plot(df.index, df[feature,column], color='r', label=column,picker=True)
         # linelist[i] = line
         # i += 1
-    ax0.set_ylim(0,0.4)
+    if feature == 'kurtosis':
+        ylim = [-1, 5] # kurtosis
+    elif feature == 'rms':
+        ylim = [0, 0.2] # rms
+    else:
+        print('Unknown feature')
+        ylim = [-3, 6]
+    ax0.set_ylim(ylim[0],ylim[1])
 
     ## second subplot
     ax1 = plt.subplot(gs[1], sharex = ax0)
@@ -67,7 +74,7 @@ def plot_merged_df(df, df_felt):
     # felt replacements
     first_date = df.index[0]
     replacements = feltdata.replacement_list(df_felt,first_date)
-    ax0.vlines(replacements, -0.2, 0.2, colors='k', linestyles='solid', label='replacements')
+    ax0.vlines(replacements, ylim[0], ylim[1], colors='k', linestyles='solid', label='replacements')
     ax1.vlines(replacements, 0, 1, colors='k', linestyles='solid', label='replacements')
     
     myFmt = mdates.DateFormatter('%d/%m') # select format of datetime
@@ -85,7 +92,10 @@ def plot_merged_df(df, df_felt):
     plt.subplots_adjust(hspace=.0)
     plt.show()
 
+    # save to pdf
     # fig.savefig("../saved_plots/" + vibsensor + "+trimproblem.pdf", bbox_inches='tight')
+    savename = feature + "14+trim+speed"
+    fig.savefig("../saved_plots/" + savename + ".pdf", bbox_inches='tight')
 
 
 def doublePlot(df_list, plt1items, plt2items):
