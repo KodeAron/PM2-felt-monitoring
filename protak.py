@@ -14,13 +14,14 @@ protakfilepath = '../data_protak/ProTAK statistics raw PM2 2020-10-30 - 2021-03-
 
 def main():
     # filename = '../data_protak/ProTAK PM2 Pressektion 201001-210228.xlsx'
+    df = load_data()
     # print(df[df.Reason=='Trimproblem'])
-    # boolean_date_plot(df)
-    dtdf = pd.DataFrame({'year': [2020, 2021],'month': [11, 3],'day': [4, 5],'hours':[13, 15]})
-    dtdf = pd.to_datetime(dtdf)
-    date = dtdf.iloc[0]
-    boolval = check_datetime_for_problem(date,problem='Trimproblem')
-    print('Problem at',date,'?',boolval)
+    digital_problem_plot(df)
+    # dtdf = pd.DataFrame({'year': [2020, 2021],'month': [11, 3],'day': [4, 5],'hours':[13, 15]})
+    # dtdf = pd.to_datetime(dtdf)
+    # date = dtdf.iloc[0]
+    # boolval = check_datetime_for_problem(date,problem='Trimproblem')
+    # print('Problem at',date,'?',boolval)
 
 def load_data(filename=protakfilepath):
     # , reasonfilter=['Trimproblem']):
@@ -40,13 +41,36 @@ def load_data(filename=protakfilepath):
     # protakdf = df
     return df
     
-def boolean_date_plot(dataframe):
-    # df_trim= dataframe.set_index(['Reason'],\
-    #     drop=True).loc['Trimproblem'].copy() 
-    plt.plot(dataframe.StartDate, np.ones(len(dataframe.StartDate)),'*', label="")
+def digital_problem_plot(dataframe,reason='Trimproblem'):
+    df = digital_problem_df(dataframe,reason)
+    print(df)
+    plt.plot(df.Date, df[reason],'-', label="")
     myFmt = mdates.DateFormatter('%d/%m %H:%M') # select format of datetime
     plt.gca().xaxis.set_major_formatter(myFmt)
     plt.show()
+
+def digital_problem_df(dataframe,reason=''):
+    if reason != '':
+        df = dataframe.set_index(['Reason'],\
+            drop=True).loc[reason].copy()
+    else:
+        df = dataframe
+    problem_df = pd.DataFrame(columns=['Date', reason])
+    end = df.iloc[0].StartDate
+    problem_df = problem_df.append({'Date' : end, reason : True}, ignore_index=True)
+    for index in range(len(df)):
+        start = df.iloc[index].StartDate
+        if start != end: # compare start with previous end
+            # add False points in between if there is space beween consecutive problem entries
+            problem_df = problem_df.append({'Date' : end, reason : False}, ignore_index=True)
+            problem_df = problem_df.append({'Date' : start, reason : False}, ignore_index=True)
+            problem_df = problem_df.append({'Date' : start, reason : True}, ignore_index=True)
+        end = df.iloc[index].EndDate
+        problem_df = problem_df.append({'Date' : end, reason : True}, ignore_index=True)
+    problem_df = problem_df.append({'Date' : end, reason : False}, ignore_index=True)
+    problem_df = problem_df.append({'Date' : pd.datetime(2021,3,26), reason : False}, ignore_index=True)
+    return problem_df
+
 
 def check_datetime_for_problem(datetime,problem='Trimproblem'):
     # check if specific point in time had specified problem
