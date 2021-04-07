@@ -15,6 +15,7 @@ import numpy as np
 
 import generaltools as gtol
 import extractombiner as extcom
+import protak
 import feltdata
 
 def main():
@@ -23,11 +24,9 @@ def main():
     plot_merged_df(df,df_felt)
 
 def plot_merged_df(df, df_felt):
-    # df = df_combined
-
-    # obsindex = 0
-    # df_vibsensor = df_observer[obsindex]['featuresDF']
-    # vibsensor = df_observer[obsindex]['position']
+    
+    feature = 'rms' # 'rms' 'kurtosis'
+    aggregate = True
 
     fig = plt.figure()
     # set height ratios for subplots
@@ -38,14 +37,17 @@ def plot_merged_df(df, df_felt):
     # line0, = ax0.plot(df_vibsensor.Datetime, df_vibsensor.RMS, color='r', label="RMS",picker=True)
     # line1, = ax0.plot(df_vibsensor.Datetime, df_vibsensor.KURT, color='g', label="kurtosis",picker=True)
     linelist = []
-    feature = 'rms'
     nNodes = len(df[feature].columns)
     # line1, = ax0.plot(df.index, df[feature], color='r', label=feature,picker=True)
-    i = 0
-    for column in df[feature]:
-        line, = ax0.plot(df.index, df[feature,column], color='r', label=column,picker=True)
-        # linelist[i] = line
-        # i += 1
+    if aggregate:
+        agg_title = 'std '
+        line, = ax0.plot(df.index, df[feature].apply(np.std,axis=1),'-', color='r', label=agg_title+feature,picker=True)
+    else:
+        i = 0
+        for column in df[feature]:
+            ax0.plot(df.index, df[feature,column],'-', color='r', label=column,picker=True)
+            # linelist[i] = line
+            # i += 1
     if feature == 'kurtosis':
         ylim = [-1, 5] # kurtosis
     elif feature == 'rms':
@@ -57,7 +59,12 @@ def plot_merged_df(df, df_felt):
 
     ## second subplot
     ax1 = plt.subplot(gs[1], sharex = ax0)
-    line2, = ax1.plot(df.index, df['Trimproblem'],'-', color='b',label='trimproblem',picker=True)
+    # line2, = ax1.plot(df.index, df['Trimproblem'],'-', color='b',label='trimproblem',picker=True)
+    first_date = df.index[0] # also used in replacement plotting
+    last_date = df.index[-1]
+    problem_df = protak.digital_problem_df(reason='Trimproblem',first_date=first_date,last_date=last_date)
+    line2, = ax1.plot(problem_df['Date'], problem_df['Trimproblem'],'-', color='b',label='trimproblem',picker=True)
+
     ## third subplot
     # shared axis X
     ax2 = plt.subplot(gs[2], sharex = ax0)
@@ -72,7 +79,6 @@ def plot_merged_df(df, df_felt):
     ax1.yaxis.set_major_locator(ticker.NullLocator())
 
     # felt replacements
-    first_date = df.index[0]
     replacements = feltdata.replacement_list(df_felt,first_date)
     ax0.vlines(replacements, ylim[0], ylim[1], colors='k', linestyles='solid', label='replacements')
     ax1.vlines(replacements, 0, 1, colors='k', linestyles='solid', label='replacements')
@@ -86,7 +92,9 @@ def plot_merged_df(df, df_felt):
     # connect picker
     fig.canvas.callbacks.connect('pick_event', gtol.on_pick)
 
-    ax0.title.set_text(feature)
+    if aggregate==True: title = agg_title + feature
+    else: title = feature
+    ax0.title.set_text(title)
 
     # remove vertical gap between subplots
     plt.subplots_adjust(hspace=.0)
@@ -94,7 +102,8 @@ def plot_merged_df(df, df_felt):
 
     # save to pdf
     # fig.savefig("../saved_plots/" + vibsensor + "+trimproblem.pdf", bbox_inches='tight')
-    savename = feature + "14+trim+speed"
+    # savename = feature + "14+trim+speed"
+    savename = title + "14+trim+speed"
     fig.savefig("../saved_plots/" + savename + ".pdf", bbox_inches='tight')
 
 

@@ -8,6 +8,9 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import pandas as pd
 import numpy as np
+import math
+
+import generaltools as gtol
 
 protakfilepath = '../data_protak/ProTAK statistics raw PM2 2020-10-30 - 2021-03-26.xlsx'
 # protakdf = pd.DataFrame
@@ -16,7 +19,8 @@ def main():
     # filename = '../data_protak/ProTAK PM2 Pressektion 201001-210228.xlsx'
     df = load_data()
     # print(df[df.Reason=='Trimproblem'])
-    digital_problem_plot(df)
+    # df = digital_problem_df(df,first_date=pd.datetime(2020,11,4))
+    print(df)
     # dtdf = pd.DataFrame({'year': [2020, 2021],'month': [11, 3],'day': [4, 5],'hours':[13, 15]})
     # dtdf = pd.to_datetime(dtdf)
     # date = dtdf.iloc[0]
@@ -49,7 +53,9 @@ def digital_problem_plot(dataframe,reason='Trimproblem'):
     plt.gca().xaxis.set_major_formatter(myFmt)
     plt.show()
 
-def digital_problem_df(dataframe,reason=''):
+def digital_problem_df(dataframe='',reason='', first_date=None, last_date=None):
+    if len(dataframe)==0:
+        dataframe = load_data()
     if reason != '':
         df = dataframe.set_index(['Reason'],\
             drop=True).loc[reason].copy()
@@ -68,7 +74,15 @@ def digital_problem_df(dataframe,reason=''):
         end = df.iloc[index].EndDate
         problem_df = problem_df.append({'Date' : end, reason : True}, ignore_index=True)
     problem_df = problem_df.append({'Date' : end, reason : False}, ignore_index=True)
-    problem_df = problem_df.append({'Date' : pd.datetime(2021,3,26), reason : False}, ignore_index=True)
+
+    # splice to desired interval
+    def is_date_between(checkdate):
+        boolval = gtol.is_date_between(checkdate,first_date,last_date)
+        return boolval
+    problem_df = problem_df[problem_df['Date'].apply(is_date_between)].reset_index(drop=True)
+    if last_date is not None:
+        problem_df = problem_df.append({'Date' : last_date, reason : False}, ignore_index=True)
+
     return problem_df
 
 
