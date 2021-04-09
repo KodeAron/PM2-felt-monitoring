@@ -25,8 +25,10 @@ def main():
 
 def plot_merged_df(df, df_felt):
     
-    feature = 'rms' # 'rms' 'kurtosis'
-    aggregate = True
+    feature = 'kurtosis' # 'rms' 'kurtosis'
+    aggregate = False
+    savefig = False
+    nodelist = []#['P001D','P001F']
 
     fig = plt.figure()
     # set height ratios for subplots
@@ -45,7 +47,8 @@ def plot_merged_df(df, df_felt):
     else:
         i = 0
         for column in df[feature]:
-            ax0.plot(df.index, df[feature,column],'-', color='r', label=column,picker=True)
+            if len(nodelist)==0 or column in nodelist:
+                ax0.plot(df.index, df[feature,column],'-', color='r', label=column,picker=True)
             # linelist[i] = line
             # i += 1
     if feature == 'kurtosis':
@@ -62,9 +65,11 @@ def plot_merged_df(df, df_felt):
     # line2, = ax1.plot(df.index, df['Trimproblem'],'-', color='b',label='trimproblem',picker=True)
     first_date = df.index[0] # also used in replacement plotting
     last_date = df.index[-1]
-    problem_df = protak.digital_problem_df(reason='Trimproblem',first_date=first_date,last_date=last_date)
-    line2, = ax1.plot(problem_df['Date'], problem_df['Trimproblem'],'-', color='b',label='trimproblem',picker=True)
-
+    trimproblem_df = protak.digital_problem_df(reason='Trimproblem',first_date=first_date,last_date=last_date)
+    line2, = ax1.plot(trimproblem_df['Date'], trimproblem_df['Trimproblem'],'-', color='b',label='Trimproblem',picker=True)
+    massakladd_df = protak.digital_problem_df(reason='Massakladd',first_date=first_date,last_date=last_date)
+    line2, = ax1.plot(massakladd_df['Date'], massakladd_df['Massakladd'],'-', color='k',label='Massakladd',picker=True)
+    
     ## third subplot
     # shared axis X
     ax2 = plt.subplot(gs[2], sharex = ax0)
@@ -104,7 +109,8 @@ def plot_merged_df(df, df_felt):
     # fig.savefig("../saved_plots/" + vibsensor + "+trimproblem.pdf", bbox_inches='tight')
     # savename = feature + "14+trim+speed"
     savename = title + "14+trim+speed"
-    fig.savefig("../saved_plots/" + savename + ".pdf", bbox_inches='tight')
+    if savefig:
+        fig.savefig("../saved_plots/" + savename + ".pdf", bbox_inches='tight')
 
 
 def doublePlot(df_list, plt1items, plt2items):
