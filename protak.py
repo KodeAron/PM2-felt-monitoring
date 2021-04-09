@@ -85,6 +85,14 @@ def digital_problem_df(dataframe='',reason='', first_date=None, last_date=None):
 
     return problem_df
 
+def check_datetime_for_Trimproblem(datetime):
+    return check_datetime_for_problem(datetime,problem='Trimproblem')
+
+def check_datetime_for_Massakladd(datetime):
+    return check_datetime_for_problem(datetime,problem='Massakladd')
+
+def check_datetime_for_Hal(datetime):
+    return check_datetime_for_problem(datetime,problem='Hål')
 
 def check_datetime_for_problem(datetime,problem='Trimproblem'):
     # check if specific point in time had specified problem
