@@ -11,6 +11,7 @@ scipy = "*"
 pandas = "*"
 xlrd = "*"
 openpyxl = "*"
+sklearn = "*"
 
 [dev-packages]
 
