@@ -20,13 +20,16 @@ picklefilepath = obsm.picklefilepath # retrieve file location from observer_merg
 
 def main():
     # features()
-    combiner()
+    df = combiner()
+    print(df)
 
 def combiner():
     # get df from observer data
     df = features()
     # add column with bool values for Trimproblem
-    df['Trimproblem'] = df.LastMeasDate.apply(protak.check_datetime_for_problem)
+    df['Trimproblem'] = df.LastMeasDate.apply(protak.check_datetime_for_Trimproblem)
+    df['Massakladd'] = df.LastMeasDate.apply(protak.check_datetime_for_Massakladd)
+    df['Hal'] = df.LastMeasDate.apply(protak.check_datetime_for_Hal)
     return df
 
 def features():
