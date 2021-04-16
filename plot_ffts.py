@@ -43,7 +43,7 @@ df = df[(df['MeasDate'] > felt_replacements[1]) & (df['MeasDate'] < felt_replace
 print(df.head())
 
 # select samples
-samples = [df.iloc[3], df.iloc[-3]]
+samples = [df.iloc[3], df.iloc[-4]]
 # colors = ['g','r']
 # # create figure
 # fig = plt.figure()
@@ -62,11 +62,43 @@ for sample in samples:
     # N = samplerate * DURATION
 
     yf = rfft(sample.RawData)
-    xf = rfftfreq(N, 1 / samplerate)
+    xf = rfftfreq(N, 1 / samplerate) #/float(sample.Speed)
 
-    plt.plot(xf, np.abs(yf), label=label,linewidth=0.2)
+    abs_yf = np.abs(yf)
+    plt.plot(xf, abs_yf, label=label,linewidth=0.2)
+
+    # plot the lower end of the spectrum
+    freq_cutoff = 500
+    index_cutoff = sum(xf<freq_cutoff)
+    print('index_cutoff =',index_cutoff)
+    print('len(yf) =',len(abs_yf))
+    print('max(abs_yf[:index_cutoff] =',max(abs_yf[:index_cutoff]))
+    amplitude_cutoff = max(abs_yf[:index_cutoff])
+
+    plt.xlim(0,freq_cutoff)
+    plt.ylim(0,amplitude_cutoff)
 
 # plot
 plt.title(nodename)
 plt.legend()
+plt.show()
+
+
+## calculate and plot mean freq
+
+meanfreq = []
+
+# loop through the df filtered out earlier, for node and interval
+for index in range(len(df)):
+    # run fft
+    samplerate = float(sample.SampleRate)
+    N = len(sample.RawData)
+    # duration = N/samplerate
+
+    yf = rfft(sample.RawData)
+    xf = rfftfreq(N, 1 / samplerate)
+    abs_yf = np.abs(yf)
+    meanfreq.append(np.average(xf, weights=abs_yf))
+
+plt.plot(meanfreq)
 plt.show()
