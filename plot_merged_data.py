@@ -27,12 +27,18 @@ def plot_merged_df(df, df_felt):
     
     feature = 'kurtosis' # 'rms' 'kurtosis'
     aggregate = False
-    savefig = False
-    nodelist = []#['P001D','P001F']
+    savefig = True
+    nodelist = ['P302F','P302D']#['P001D','P001F']
 
     fig = plt.figure()
     # set height ratios for subplots
     gs = gridspec.GridSpec(3, 1, height_ratios=[2, 0.4, 1]) 
+
+    first_date = df.index[0]
+    last_date = df.index[-1]
+
+    # felt replacements
+    replacements = feltdata.replacement_list(df_felt,first_date,last_date)
 
     ## first subplot
     ax0 = plt.subplot(gs[0])
@@ -48,7 +54,7 @@ def plot_merged_df(df, df_felt):
         i = 0
         for column in df[feature]:
             if len(nodelist)==0 or column in nodelist:
-                ax0.plot(df.index, df[feature,column],'-', color='r', label=column,picker=True)
+                ax0.plot(df.index, df[feature,column],'-', label=column,picker=True)
             # linelist[i] = line
             # i += 1
     if feature == 'kurtosis':
@@ -63,12 +69,10 @@ def plot_merged_df(df, df_felt):
     ## second subplot
     ax1 = plt.subplot(gs[1], sharex = ax0)
     # line2, = ax1.plot(df.index, df['Trimproblem'],'-', color='b',label='trimproblem',picker=True)
-    first_date = df.index[0] # also used in replacement plotting
-    last_date = df.index[-1]
     trimproblem_df = protak.digital_problem_df(reason='Trimproblem',first_date=first_date,last_date=last_date)
     line2, = ax1.plot(trimproblem_df['Date'], trimproblem_df['Trimproblem'],'-', color='b',label='Trimproblem',picker=True)
-    massakladd_df = protak.digital_problem_df(reason='Massakladd',first_date=first_date,last_date=last_date)
-    line2, = ax1.plot(massakladd_df['Date'], massakladd_df['Massakladd'],'-', color='k',label='Massakladd',picker=True)
+    # massakladd_df = protak.digital_problem_df(reason='Massakladd',first_date=first_date,last_date=last_date)
+    # line2, = ax1.plot(massakladd_df['Date'], massakladd_df['Massakladd'],'-', color='k',label='Massakladd',picker=True)
     
     ## third subplot
     # shared axis X
@@ -83,16 +87,16 @@ def plot_merged_df(df, df_felt):
     # yticks[-1].label1.set_visible(False)
     ax1.yaxis.set_major_locator(ticker.NullLocator())
 
-    # felt replacements
-    replacements = feltdata.replacement_list(df_felt,first_date)
-    ax0.vlines(replacements, ylim[0], ylim[1], colors='k', linestyles='solid', label='replacements')
-    ax1.vlines(replacements, 0, 1, colors='k', linestyles='solid', label='replacements')
+    # plot felt replacements
+    ax0.vlines(replacements, ylim[0], ylim[1], colors='k', linestyles='solid')#, label='replacements')
+    ax1.vlines(replacements, 0, 1, colors='k', linestyles='solid')#, label='replacements')
     
     myFmt = mdates.DateFormatter('%d/%m') # select format of datetime
     ax1.xaxis.set_major_formatter(myFmt)
 
     # put legend on first subplot
-    # ax0.legend((line1, line2), (line1.get_label(),'trimproblem'),loc='upper left') #
+    # if len(nodelist)==0:
+    ax0.legend()#loc='upper left')
 
     # connect picker
     fig.canvas.callbacks.connect('pick_event', gtol.on_pick)
@@ -108,8 +112,12 @@ def plot_merged_df(df, df_felt):
     # save to pdf
     # fig.savefig("../saved_plots/" + vibsensor + "+trimproblem.pdf", bbox_inches='tight')
     # savename = feature + "14+trim+speed"
-    savename = title + "14+trim+speed"
     if savefig:
+        if len(nodelist)==0:
+            nodes = '14'
+        else:
+            nodes = ','.join(nodelist)
+        savename = title + '_' + nodes + "+trim+speed"
         fig.savefig("../saved_plots/" + savename + ".pdf", bbox_inches='tight')
 
 
