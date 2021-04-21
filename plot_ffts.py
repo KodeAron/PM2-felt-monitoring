@@ -29,7 +29,7 @@ df = measdf[['MeasDate','IDNode','NodeName','StorageReason','Speed',\
 df = df[df['StorageReason'] == '0'].drop(labels='StorageReason',axis=1,inplace=False)
 
 # select, and filter, one node
-nodename = 'P301F'
+nodename = 'P302D'
 df = df[df['NodeName'] == nodename]
 
 # select time interval and remove other measurements
@@ -46,7 +46,7 @@ print(df.head())
 samples = [df.iloc[3], df.iloc[-4]]
 # colors = ['g','r']
 # # create figure
-# fig = plt.figure()
+fig = plt.figure()
 for sample in samples:
     label = str(sample.MeasDate)
     print(label)
@@ -82,6 +82,10 @@ for sample in samples:
 plt.title(nodename)
 plt.legend()
 plt.show()
+
+savename = nodename + "_Sp_" + "_".join([sample.MeasDate.strftime("%y%m%d") for sample in samples])
+print(savename)
+fig.savefig("../saved_plots/" + savename + ".pdf", bbox_inches='tight')
 
 
 ## calculate and plot mean freq
