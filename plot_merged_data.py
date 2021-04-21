@@ -25,10 +25,10 @@ def main():
 
 def plot_merged_df(df, df_felt):
     
-    feature = 'kurtosis' # 'rms' 'kurtosis'
+    feature = 'crest factor' # 'rms' 'kurtosis' 'crest factor'
     aggregate = False
-    savefig = True
-    nodelist = ['P302F','P302D']#['P001D','P001F']
+    savefig = False
+    nodelist = ['P302F','P302D'] # ['P001D','P001F'] 
 
     fig = plt.figure()
     # set height ratios for subplots
@@ -61,6 +61,8 @@ def plot_merged_df(df, df_felt):
         ylim = [-1, 5] # kurtosis
     elif feature == 'rms':
         ylim = [0, 0.2] # rms
+    elif feature == 'crest factor':
+        ylim = [3, 9] # crest factor
     else:
         print('Unknown feature')
         ylim = [-3, 6]

@@ -32,7 +32,7 @@ def combiner():
     df['Hal'] = df.LastMeasDate.apply(protak.check_datetime_for_Hal)
     return df
 
-def features():
+def features(samespeed=False):
     # calculate features for each node and strip non-interesting columns,
     # delete (a)larm measurements (StorageReason=1)
     # and group by date
@@ -59,9 +59,10 @@ def features():
         print('Missing data')
         print(df[df['RawData'].isnull()])
 
-    # calculate rms and kurtosis and add result in new columns
+    # calculate features and add result in new columns
     df['rms'] = df['RawData'].apply(vec_rms)
     df['kurtosis'] = df['RawData'].apply(vec_kurtosis)
+    df['crest factor'] = df['RawData'].apply(vec_crest)
 
     # # print measurements that belongs together
     # print(df[df['MeasDate'].dt.floor(freq = 'D') == dt.datetime(2020,11,4)])
@@ -75,14 +76,15 @@ def features():
     # reshape dataframe
     df_unstack = df.set_index(['MeasHour','NodeName']).unstack(level=-1)
 
-    # warning if speed std is too big
-    speed_std_threshold = 20
-    speed_std = df_unstack.Speed.astype(float).std(axis=1) > speed_std_threshold
-    if speed_std.any():
-        print('Speed std > ',str(speed_std_threshold))
-        print(df_unstack[speed_std].Speed)
-        # drop the rows where the std of speed exceeds the threshold
-        df_unstack = df_unstack[speed_std==0]
+    if samespeed:
+        # warning if speed std is too big
+        speed_std_threshold = 20
+        speed_std = df_unstack.Speed.astype(float).std(axis=1) > speed_std_threshold
+        if speed_std.any():
+            print('Speed std > ',str(speed_std_threshold))
+            print(df_unstack[speed_std].Speed)
+            # drop the rows where the std of speed exceeds the threshold
+            df_unstack = df_unstack[speed_std==0]
 
     # calculate average speed and add in column
     df_unstack['AverageSpeed'] = df_unstack.Speed.astype(float).mean(axis=1)
@@ -110,6 +112,10 @@ def vec_rms(data_array):
 def vec_kurtosis(data_array):
     val_kurtosis = spstats.kurtosis(np.abs(data_array))
     return val_kurtosis
+
+def vec_crest(data_array):
+    val_crest = max(np.abs(data_array))/vec_rms(data_array)
+    return val_crest
 
 if __name__ == '__main__':
     main()
