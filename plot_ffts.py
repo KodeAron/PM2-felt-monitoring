@@ -16,6 +16,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.fft import rfft, rfftfreq
+import generaltools as gtol
 
 # load raw vibration data 
 measdf = pd.read_pickle(picklefilepath)
@@ -29,7 +30,7 @@ df = measdf[['MeasDate','IDNode','NodeName','StorageReason','Speed',\
 df = df[df['StorageReason'] == '0'].drop(labels='StorageReason',axis=1,inplace=False)
 
 # select, and filter, one node
-nodename = 'P302D'
+nodename = 'P301F'
 df = df[df['NodeName'] == nodename]
 
 # select time interval and remove other measurements
@@ -40,23 +41,24 @@ felt_replacements = feltdata.replacement_list(felt_df,\
 # return measurements between these two dates
 df = df[(df['MeasDate'] > felt_replacements[1]) & (df['MeasDate'] < felt_replacements[0])].reset_index(drop=True,inplace=False)
 
-print(df.head())
+# print(df[['MeasDate','Speed']])
 
 # select samples
-samples = [df.iloc[3], df.iloc[-4]]
+samples = [df.iloc[4], df.iloc[-3]]
 # colors = ['g','r']
 # # create figure
-fig = plt.figure()
+fig = plt.figure(figsize=(8,4))
 for sample in samples:
-    label = str(sample.MeasDate)
+    measdate_str = str(sample.MeasDate)
+    speed_str = str(round(float(sample.Speed),1))
+    label = measdate_str + ', cpm=' + speed_str
     print(label)
-    print('speed =',sample.Speed)
     # run fft
     samplerate = float(sample.SampleRate)
     print('samplerate',samplerate)
     # N = float(sample.SpectraLines)
     N = len(sample.RawData)
-    print('N =',N)
+    # print('N =',N)
     duration = N/samplerate
     print('duration =',duration)
     # N = samplerate * DURATION
@@ -65,44 +67,48 @@ for sample in samples:
     xf = rfftfreq(N, 1 / samplerate) #/float(sample.Speed)
 
     abs_yf = np.abs(yf)
-    plt.plot(xf, abs_yf, label=label,linewidth=0.2)
+    plt.plot(xf, abs_yf, label=label,linewidth=0.2,picker=True)
 
     # plot the lower end of the spectrum
     freq_cutoff = 500
     index_cutoff = sum(xf<freq_cutoff)
-    print('index_cutoff =',index_cutoff)
-    print('len(yf) =',len(abs_yf))
-    print('max(abs_yf[:index_cutoff] =',max(abs_yf[:index_cutoff]))
-    amplitude_cutoff = max(abs_yf[:index_cutoff])
+    # print('index_cutoff =',index_cutoff)
+    # print('len(yf) =',len(abs_yf))
+    # print('max(abs_yf[:index_cutoff] =',max(abs_yf[:index_cutoff]))
+    amplitude_cutoff = max(abs_yf[:index_cutoff])/2
 
     plt.xlim(0,freq_cutoff)
-    plt.ylim(0,amplitude_cutoff)
+    # plt.ylim(0,amplitude_cutoff)
+    plt.ylim(0,100)
 
+# connect picker
+fig.canvas.callbacks.connect('pick_event', gtol.on_pick)
 # plot
+# plt.gca().set_yscale('log')
 plt.title(nodename)
 plt.legend()
 plt.show()
 
 savename = nodename + "_Sp_" + "_".join([sample.MeasDate.strftime("%y%m%d") for sample in samples])
-print(savename)
-fig.savefig("../saved_plots/" + savename + ".pdf", bbox_inches='tight')
+# print(savename)
+# fig.savefig("../saved_plots/" + savename + ".pdf", bbox_inches='tight')
 
 
-## calculate and plot mean freq
+# ## calculate and plot mean freq
 
-meanfreq = []
+# meanfreq = []
 
-# loop through the df filtered out earlier, for node and interval
-for index in range(len(df)):
-    # run fft
-    samplerate = float(sample.SampleRate)
-    N = len(sample.RawData)
-    # duration = N/samplerate
+# # loop through the df filtered out earlier, for node and interval
+# for index in range(len(df)):
+#     # run fft
+#     samplerate = float(sample.SampleRate)
+#     N = len(sample.RawData)
+#     # duration = N/samplerate
 
-    yf = rfft(sample.RawData)
-    xf = rfftfreq(N, 1 / samplerate)
-    abs_yf = np.abs(yf)
-    meanfreq.append(np.average(xf, weights=abs_yf))
+#     yf = rfft(sample.RawData)
+#     xf = rfftfreq(N, 1 / samplerate)
+#     abs_yf = np.abs(yf)
+#     meanfreq.append(np.average(xf, weights=abs_yf))
 
-plt.plot(meanfreq)
-plt.show()
+# plt.plot(meanfreq)
+# plt.show()
