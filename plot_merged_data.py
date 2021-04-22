@@ -12,6 +12,8 @@ import pandas as pd
 from matplotlib import gridspec
 from matplotlib import ticker
 import numpy as np
+import scipy.stats as spstats 
+import datetime as dt
 
 import generaltools as gtol
 import extractombiner as extcom
@@ -25,10 +27,10 @@ def main():
 
 def plot_merged_df(df, df_felt):
     
-    feature = 'crest factor' # 'rms' 'kurtosis' 'crest factor'
+    feature = 'kurtosis' # 'rms' 'kurtosis' 'crest factor'
     aggregate = False
-    savefig = False
-    nodelist = ['P302F','P302D'] # ['P001D','P001F'] 
+    savefig = True
+    nodelist = ['P303F','P303D'] # ['P001D','P001F'] 
 
     fig = plt.figure()
     # set height ratios for subplots
@@ -38,7 +40,7 @@ def plot_merged_df(df, df_felt):
     last_date = df.index[-1]
 
     # felt replacements
-    replacements = feltdata.replacement_list(df_felt,first_date,last_date)
+    felt_replacements = sorted(feltdata.replacement_list(df_felt,first_date,last_date))
 
     ## first subplot
     ax0 = plt.subplot(gs[0])
@@ -46,6 +48,12 @@ def plot_merged_df(df, df_felt):
     # line1, = ax0.plot(df_vibsensor.Datetime, df_vibsensor.KURT, color='g', label="kurtosis",picker=True)
     linelist = []
     nNodes = len(df[feature].columns)
+    
+    # prepare for linear regression by converting datetime to ordinal
+    df_repl1 = df[(df.index > felt_replacements[0]+dt.timedelta(days=1)) & (df.index < felt_replacements[1]-dt.timedelta(days=1))]
+    df_repl2 = df[(df.index > felt_replacements[1]+dt.timedelta(days=1))]# & (df.index < felt_replacements[2]-dt.timedelta(days=1))]
+    ordinal_dt_repl1 = df_repl1.index.map(dt.datetime.toordinal)
+    ordinal_dt_repl2 = df_repl2.index.map(dt.datetime.toordinal)
     # line1, = ax0.plot(df.index, df[feature], color='r', label=feature,picker=True)
     if aggregate:
         agg_title = 'std '
@@ -54,7 +62,15 @@ def plot_merged_df(df, df_felt):
         i = 0
         for column in df[feature]:
             if len(nodelist)==0 or column in nodelist:
+                # plot feature for one node (column)
                 ax0.plot(df.index, df[feature,column],'-', label=column,picker=True)
+                # linear regression
+                LinregressResult = spstats.linregress(ordinal_dt_repl1,df_repl1[feature,column])
+                y = LinregressResult.slope * ordinal_dt_repl1 + LinregressResult.intercept
+                ax0.plot(df_repl1.index, y,linestyle='dotted',color='r')
+                LinregressResult = spstats.linregress(ordinal_dt_repl2,df_repl2[feature,column])
+                y = LinregressResult.slope * ordinal_dt_repl2 + LinregressResult.intercept
+                ax0.plot(df_repl2.index, y,linestyle='dotted',color='r')
             # linelist[i] = line
             # i += 1
     if feature == 'kurtosis':
@@ -90,8 +106,8 @@ def plot_merged_df(df, df_felt):
     ax1.yaxis.set_major_locator(ticker.NullLocator())
 
     # plot felt replacements
-    ax0.vlines(replacements, ylim[0], ylim[1], colors='k', linestyles='solid')#, label='replacements')
-    ax1.vlines(replacements, 0, 1, colors='k', linestyles='solid')#, label='replacements')
+    ax0.vlines(felt_replacements, ylim[0], ylim[1], colors='k', linestyles='solid')#, label='replacements')
+    ax1.vlines(felt_replacements, 0, 1, colors='k', linestyles='solid')#, label='replacements')
     
     myFmt = mdates.DateFormatter('%d/%m') # select format of datetime
     ax1.xaxis.set_major_formatter(myFmt)
