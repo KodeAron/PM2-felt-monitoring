@@ -23,9 +23,9 @@ def main():
     df = combiner()
     print(df)
 
-def combiner():
+def combiner(samespeed=False):
     # get df from observer data
-    df = features()
+    df = features(samespeed)
     # add column with bool values for Trimproblem
     df['Trimproblem'] = df.LastMeasDate.apply(protak.check_datetime_for_Trimproblem)
     df['Massakladd'] = df.LastMeasDate.apply(protak.check_datetime_for_Massakladd)
