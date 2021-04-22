@@ -22,15 +22,15 @@ import feltdata
 
 def main():
     df_felt = feltdata.load_data()
-    df = extcom.combiner()
+    df = extcom.combiner(samespeed=True)
     plot_merged_df(df,df_felt)
 
 def plot_merged_df(df, df_felt):
     
-    feature = 'kurtosis' # 'rms' 'kurtosis' 'crest factor'
+    feature = 'crest factor' # 'rms' 'kurtosis' 'crest factor'
     aggregate = False
     savefig = True
-    nodelist = ['P303F','P303D'] # ['P001D','P001F'] 
+    nodelist = ['P302F','P302D'] # ['P001D','P001F'] 
 
     fig = plt.figure()
     # set height ratios for subplots
@@ -109,7 +109,7 @@ def plot_merged_df(df, df_felt):
     ax0.vlines(felt_replacements, ylim[0], ylim[1], colors='k', linestyles='solid')#, label='replacements')
     ax1.vlines(felt_replacements, 0, 1, colors='k', linestyles='solid')#, label='replacements')
     
-    myFmt = mdates.DateFormatter('%d/%m') # select format of datetime
+    myFmt = mdates.DateFormatter('%d-%b') # select format of datetime
     ax1.xaxis.set_major_formatter(myFmt)
 
     # put legend on first subplot
