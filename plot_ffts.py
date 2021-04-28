@@ -70,14 +70,16 @@ for sample in samples:
     plt.plot(xf, abs_yf, label=label,linewidth=0.2,picker=True)
 
     # plot the lower end of the spectrum
-    freq_cutoff = 500
-    index_cutoff = sum(xf<freq_cutoff)
+    cutoff_low = 0
+    cutoff_high = 500
+    index_cutoff_low = sum(xf<cutoff_low)
+    index_cutoff_high = sum(xf<cutoff_high)
     # print('index_cutoff =',index_cutoff)
     # print('len(yf) =',len(abs_yf))
     # print('max(abs_yf[:index_cutoff] =',max(abs_yf[:index_cutoff]))
-    amplitude_cutoff = max(abs_yf[:index_cutoff])/2
+    amplitude_cutoff = max(abs_yf[index_cutoff_low:index_cutoff_high])/2
 
-    plt.xlim(0,freq_cutoff)
+    plt.xlim(cutoff_low,cutoff_high)
     # plt.ylim(0,amplitude_cutoff)
     plt.ylim(0,100)
 
@@ -89,9 +91,10 @@ plt.title(nodename)
 plt.legend()
 plt.show()
 
-savename = nodename + "_Sp_" + "_".join([sample.MeasDate.strftime("%y%m%d") for sample in samples])
+savename = nodename + "_Sp_" + str(cutoff_low) + '-' + str(cutoff_high) + "_" + \
+    "_".join([sample.MeasDate.strftime("%y%m%d") for sample in samples])
 # print(savename)
-# fig.savefig("../saved_plots/" + savename + ".pdf", bbox_inches='tight')
+fig.savefig("../saved_plots/" + savename + ".pdf", bbox_inches='tight')
 
 
 # ## calculate and plot mean freq
