@@ -27,10 +27,10 @@ def main():
 
 def plot_merged_df(df, df_felt):
     
-    feature = 'crest factor' # 'rms' 'kurtosis' 'crest factor'
+    feature = 'kurtosis' # 'rms' 'kurtosis' 'crest factor'
     aggregate = False
     savefig = True
-    nodelist = ['P302F','P302D'] # ['P001D','P001F'] 
+    nodelist = ['P302F','P302D'] # ['P001F','P001D'] ['P302F','P302D']
 
     fig = plt.figure()
     # set height ratios for subplots
@@ -176,15 +176,6 @@ def lineObjs(axis, pltList):
 
 
     return lines
-
-
-def plotVibNStops(filename):
-    pass
-    return # dataframe
-
-def plotVibNLoggNStops():
-    pass
-    # plots
 
 if __name__ == '__main__':
     main()
