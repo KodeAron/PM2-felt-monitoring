@@ -41,10 +41,10 @@ felt_replacements = feltdata.replacement_list(felt_df,\
 # return measurements between these two dates
 df = df[(df['MeasDate'] > felt_replacements[1]) & (df['MeasDate'] < felt_replacements[0])].reset_index(drop=True,inplace=False)
 
-# print(df[['MeasDate','Speed']])
+print(df[['MeasDate','Speed']])
 
 # select samples
-samples = [df.iloc[4], df.iloc[-3]]
+samples = [df.iloc[-5], df.iloc[-3]]#[df.iloc[3], df.iloc[4]]#[df.iloc[4], df.iloc[-3]]
 # colors = ['g','r']
 # # create figure
 fig = plt.figure(figsize=(8,4))
