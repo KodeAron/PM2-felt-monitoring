@@ -33,6 +33,9 @@ df = df[df['StorageReason'] == '0'].drop(labels='StorageReason',axis=1,inplace=F
 nodename = 'P301F'
 df = df[df['NodeName'] == nodename]
 
+# choose whether to normalise on com
+cpm_norm = True
+
 # select time interval and remove other measurements
 felt_df = feltdata.load_data()
 felt_replacements = feltdata.replacement_list(felt_df,\
@@ -44,13 +47,14 @@ df = df[(df['MeasDate'] > felt_replacements[1]) & (df['MeasDate'] < felt_replace
 print(df[['MeasDate','Speed']])
 
 # select samples
-samples = [df.iloc[-5], df.iloc[-3]]#[df.iloc[3], df.iloc[4]]#[df.iloc[4], df.iloc[-3]]
+samples = [df.iloc[4], df.iloc[-3]] #[df.iloc[-5], df.iloc[-3]]#[df.iloc[3], df.iloc[4]]#[df.iloc[4], df.iloc[-3]]
 # colors = ['g','r']
 # # create figure
 fig = plt.figure(figsize=(8,4))
 for sample in samples:
     measdate_str = str(sample.MeasDate)
-    speed_str = str(round(float(sample.Speed),1))
+    speed = float(sample.Speed)
+    speed_str = str(round(speed,1))
     label = measdate_str + ', cpm=' + speed_str
     print(label)
     # run fft
@@ -65,13 +69,19 @@ for sample in samples:
 
     yf = rfft(sample.RawData)
     xf = rfftfreq(N, 1 / samplerate) #/float(sample.Speed)
+    if cpm_norm:
+        xf = xf/(speed/60)
 
     abs_yf = np.abs(yf)
     plt.plot(xf, abs_yf, label=label,linewidth=0.2,picker=True)
 
     # plot the lower end of the spectrum
-    cutoff_low = 0
-    cutoff_high = 500
+    if cpm_norm:
+        cutoff_low = 0
+        cutoff_high = 500/(speed/60)
+    else:
+        cutoff_low = 0
+        cutoff_high = 500
     index_cutoff_low = sum(xf<cutoff_low)
     index_cutoff_high = sum(xf<cutoff_high)
     # print('index_cutoff =',index_cutoff)
@@ -91,7 +101,12 @@ plt.title(nodename)
 plt.legend()
 plt.show()
 
-savename = nodename + "_Sp_" + str(cutoff_low) + '-' + str(cutoff_high) + "_" + \
+if cpm_norm:
+    freq_norm = 'cpmnorm_'
+else:
+    freq_norm = ''
+
+savename = nodename + "_Sp_" + freq_norm + str(round(cutoff_low,1)) + '-' + str(round(cutoff_high,1)) + "_" + \
     "_".join([sample.MeasDate.strftime("%y%m%d") for sample in samples])
 # print(savename)
 fig.savefig("../saved_plots/" + savename + ".pdf", bbox_inches='tight')
