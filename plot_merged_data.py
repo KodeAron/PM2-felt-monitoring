@@ -30,11 +30,11 @@ def plot_merged_df(df, df_felt):
     feature = 'kurtosis' # 'rms' 'kurtosis' 'crest factor'
     aggregate = False
     savefig = True
-    nodelist = ['P302F','P302D'] # ['P001F','P001D'] ['P302F','P302D']
+    nodelist = [] # ['P001F','P001D'] ['P302F','P302D']
 
     fig = plt.figure()
     # set height ratios for subplots
-    gs = gridspec.GridSpec(3, 1, height_ratios=[2, 0.4, 1]) 
+    gs = gridspec.GridSpec(3, 1, height_ratios=[2, 0.2, 0.8]) 
 
     first_date = df.index[0]
     last_date = df.index[-1]
@@ -59,22 +59,26 @@ def plot_merged_df(df, df_felt):
         agg_title = 'std '
         line, = ax0.plot(df.index, df[feature].apply(np.std,axis=1),'-', color='r', label=agg_title+feature,picker=True)
     else:
-        i = 0
-        for column in df[feature]:
-            if len(nodelist)==0 or column in nodelist:
-                # plot feature for one node (column)
-                ax0.plot(df.index, df[feature,column],'-', label=column,picker=True)
-                # linear regression
-                LinregressResult = spstats.linregress(ordinal_dt_repl1,df_repl1[feature,column])
-                y = LinregressResult.slope * ordinal_dt_repl1 + LinregressResult.intercept
-                ax0.plot(df_repl1.index, y,linestyle='dotted',color='r')
-                LinregressResult = spstats.linregress(ordinal_dt_repl2,df_repl2[feature,column])
-                y = LinregressResult.slope * ordinal_dt_repl2 + LinregressResult.intercept
-                ax0.plot(df_repl2.index, y,linestyle='dotted',color='r')
-            # linelist[i] = line
-            # i += 1
+        # i = 0
+        if len(nodelist)==0:
+            for column in df[feature]:
+                ax0.plot(df.index, df[feature,column],'-', label=column,picker=True,color='r')
+        else:
+            for column in df[feature]:
+                if column in nodelist:
+                    # plot feature for one node (column)
+                    ax0.plot(df.index, df[feature,column],'-', label=column,picker=True)
+                    # linear regression
+                    LinregressResult = spstats.linregress(ordinal_dt_repl1,df_repl1[feature,column])
+                    y = LinregressResult.slope * ordinal_dt_repl1 + LinregressResult.intercept
+                    ax0.plot(df_repl1.index, y,linestyle='dotted',color='r')
+                    LinregressResult = spstats.linregress(ordinal_dt_repl2,df_repl2[feature,column])
+                    y = LinregressResult.slope * ordinal_dt_repl2 + LinregressResult.intercept
+                    ax0.plot(df_repl2.index, y,linestyle='dotted',color='r')
+                # linelist[i] = line
+                # i += 1
     if feature == 'kurtosis':
-        ylim = [-1, 5] # kurtosis
+        ylim = [-0.5, 5] # kurtosis
     elif feature == 'rms':
         ylim = [0, 0.2] # rms
     elif feature == 'crest factor':
@@ -108,20 +112,23 @@ def plot_merged_df(df, df_felt):
     # plot felt replacements
     ax0.vlines(felt_replacements, ylim[0], ylim[1], colors='k', linestyles='solid')#, label='replacements')
     ax1.vlines(felt_replacements, 0, 1, colors='k', linestyles='solid')#, label='replacements')
-    
+    ax2.vlines(felt_replacements, 380, 1240, colors='k', linestyles='solid')#, label='replacements')
+    ax2.set_ylim(380,1250)
+
     myFmt = mdates.DateFormatter('%d-%b') # select format of datetime
     ax1.xaxis.set_major_formatter(myFmt)
 
     # put legend on first subplot
-    # if len(nodelist)==0:
-    ax0.legend()#loc='upper left')
+    if not len(nodelist)==0:
+        ax0.legend()#loc='upper left')
 
     # connect picker
     fig.canvas.callbacks.connect('pick_event', gtol.on_pick)
 
+    # title above plot and in filename
     if aggregate==True: title = agg_title + feature
     else: title = feature
-    ax0.title.set_text(title)
+    # ax0.title.set_text(title)
 
     # remove vertical gap between subplots
     plt.subplots_adjust(hspace=.0)

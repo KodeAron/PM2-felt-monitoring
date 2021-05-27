@@ -34,7 +34,7 @@ nodename = 'P301F'
 df = df[df['NodeName'] == nodename]
 
 # choose whether to normalise on com
-cpm_norm = True
+cpm_norm = False
 
 # select time interval and remove other measurements
 felt_df = feltdata.load_data()
@@ -97,14 +97,17 @@ for sample in samples:
 fig.canvas.callbacks.connect('pick_event', gtol.on_pick)
 # plot
 # plt.gca().set_yscale('log')
-plt.title(nodename)
-plt.legend()
-plt.show()
 
 if cpm_norm:
     freq_norm = 'cpmnorm_'
+    plt.gca().set_xlabel("Frequency / Machine speed [Hz/Hz]")
 else:
     freq_norm = ''
+    plt.gca().set_xlabel("Frequency [Hz]")
+    
+# plt.title(nodename)
+plt.legend()
+plt.show()
 
 savename = nodename + "_Sp_" + freq_norm + str(round(cutoff_low,1)) + '-' + str(round(cutoff_high,1)) + "_" + \
     "_".join([sample.MeasDate.strftime("%y%m%d") for sample in samples])
