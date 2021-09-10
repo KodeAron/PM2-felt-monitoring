@@ -2,7 +2,8 @@
 """ Extract, calculate features and combine data into one dataframe
 
 Observer data: calculate features and restructre so that measurements 
-performed close in time are grouped together. Sorted on first MeasDate for each group.
+performed close in time are grouped together. 
+Sorted on first MeasDate for each group.
 
 Created on Mar 26 2021 08:20
 @author: Aron, Luleå University of Technology
@@ -16,7 +17,8 @@ import observer_merge as obsm
 import protak
 import feltdata
 
-picklefilepath = obsm.picklefilepath # retrieve file location from observer_merge.py
+# retrieve file location from observer_merge.py
+picklefilepath = obsm.picklefilepath
 
 def main():
     # features()
@@ -27,8 +29,10 @@ def combiner(samespeed=False):
     # get df from observer data
     df = features(samespeed)
     # add column with bool values for Trimproblem
-    df['Trimproblem'] = df.LastMeasDate.apply(protak.check_datetime_for_Trimproblem)
-    df['Massakladd'] = df.LastMeasDate.apply(protak.check_datetime_for_Massakladd)
+    df['Trimproblem'] = df.LastMeasDate.apply(protak.\
+        check_datetime_for_Trimproblem)
+    df['Massakladd'] = df.LastMeasDate.apply(protak.\
+        check_datetime_for_Massakladd)
     df['Hal'] = df.LastMeasDate.apply(protak.check_datetime_for_Hal)
     return df
 
@@ -37,19 +41,17 @@ def features(samespeed=False):
     # delete (a)larm measurements (StorageReason=1)
     # and group by date
     measdf = pd.read_pickle(picklefilepath)
-    # print(measdf.columns)
-    # print(measdf.index)
 
-    df = measdf[['MeasDate','IDNode','NodeName','StorageReason','Speed','MeasValue','RawData']].copy()
-
-    # print(df[df['NodeName']=='P303D'].head()) # to check if StorageReason=1 really is larm, seems so'
+    df = measdf[['MeasDate','IDNode','NodeName','StorageReason',\
+        'Speed','MeasValue','RawData']].copy()
 
     # delete larm measurements, i.e. only keep sccheduled (StorageReason=0)
-    df = df[df['StorageReason'] == '0'].drop(labels='StorageReason',axis=1,inplace=False) #.reset_index(drop=True,inplace=False)
-        #.sort_values(by=['MeasDate','IDNode'])
+    df = df[df['StorageReason'] == '0'].drop(labels='StorageReason',\
+        axis=1,inplace=False)
 
     # remove dates before 2020-11-04
-    df = df[df['MeasDate'] > dt.datetime(2020,11,4)].reset_index(drop=True,inplace=False)
+    df = df[df['MeasDate'] > dt.datetime(2020,11,4)]\
+        .reset_index(drop=True,inplace=False)
     
     # check for missing data
     if df[df['RawData'].isnull()].empty:
@@ -64,14 +66,12 @@ def features(samespeed=False):
     df['kurtosis'] = df['RawData'].apply(vec_kurtosis)
     df['crest factor'] = df['RawData'].apply(vec_crest)
 
-    # # print measurements that belongs together
-    # print(df[df['MeasDate'].dt.floor(freq = 'D') == dt.datetime(2020,11,4)])
-
-    # add column where datetime is floored to hour to simplify grouping/combining
+    # add column where datetime is floored to hour to simplify stacking
     df['MeasHour'] = df['MeasDate'].dt.floor(freq='H')
 
     # drop some columns
-    df = df.drop(labels=['MeasValue','RawData','IDNode'],axis=1,inplace=False)
+    df = df.drop(labels=['MeasValue','RawData','IDNode'],\
+        axis=1,inplace=False)
 
     # reshape dataframe
     df_unstack = df.set_index(['MeasHour','NodeName']).unstack(level=-1)
@@ -79,15 +79,17 @@ def features(samespeed=False):
     if samespeed:
         # warning if speed std is too big
         speed_std_threshold = 20
-        speed_std = df_unstack.Speed.astype(float).std(axis=1) > speed_std_threshold
+        speed_std = df_unstack.Speed.astype(float).std(axis=1)\
+             > speed_std_threshold
         if speed_std.any():
             print('Speed std > ',str(speed_std_threshold))
             print(df_unstack[speed_std].Speed)
-            # drop the rows where the std of speed exceeds the threshold
+            # drop rows where the std of speed exceeds the threshold
             df_unstack = df_unstack[speed_std==0]
 
     # calculate average speed and add in column
-    df_unstack['AverageSpeed'] = df_unstack.Speed.astype(float).mean(axis=1)
+    df_unstack['AverageSpeed'] = \
+        df_unstack.Speed.astype(float).mean(axis=1)
     # drop speed column
     df_unstack.drop(labels=['Speed'],axis=1,inplace=True)
 
@@ -97,8 +99,10 @@ def features(samespeed=False):
 
     # add last MeasDate
     df_unstack['LastMeasDate'] = df_unstack.MeasDate.max(axis=1)
-    # add difference between first and last MeasDate. dt.seconds converts it to seconds
-    df_unstack['DiffMeasDate'] = (df_unstack.MeasDate.max(axis=1)-df_unstack.MeasDate.min(axis=1)).dt.seconds
+    # add difference between first and last MeasDate. 
+    # dt.seconds converts it to seconds
+    df_unstack['DiffMeasDate'] = (df_unstack.MeasDate.max(axis=1)-\
+        df_unstack.MeasDate.min(axis=1)).dt.seconds
 
     # drop MeasDate column
     df_unstack.drop(labels=['MeasDate'],axis=1,inplace=True)

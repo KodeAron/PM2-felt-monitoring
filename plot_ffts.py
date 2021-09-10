@@ -10,7 +10,8 @@ Created on Apr 2021 15:40
 # import observer_merge as obsm
 # picklefilepath = obsm.picklefilepath
 # or just hard code it for increased speed
-picklefilepath = '../data_observer/pickles/' + '1aPressT_Acc_ej-nyp_201015-210325'
+picklefilepath = '../data_observer/pickles/' + \
+    '1aPressT_Acc_ej-nyp_201015-210325'
 import feltdata
 import pandas as pd
 import numpy as np
@@ -24,10 +25,12 @@ measdf = pd.read_pickle(picklefilepath)
 
 # create a copy (df) with only relevant columns
 df = measdf[['MeasDate','IDNode','NodeName','StorageReason','Speed',\
-    'MeasValue','SampleRate','TimesignalPulses','SpectraLines','RawData']].copy()
+    'MeasValue','SampleRate','TimesignalPulses',\
+        'SpectraLines','RawData']].copy()
 
 # delete larm measurements, i.e. only keep sccheduled (StorageReason=0)
-df = df[df['StorageReason'] == '0'].drop(labels='StorageReason',axis=1,inplace=False)
+df = df[df['StorageReason'] == '0'].drop(labels='StorageReason',\
+    axis=1,inplace=False)
 
 # select, and filter, one node
 nodename = 'P301F'
@@ -42,12 +45,14 @@ felt_replacements = feltdata.replacement_list(felt_df,\
     first_date=df.iloc[0].MeasDate,last_date=df.iloc[-1].MeasDate)
 # for 201015-210325 this will return two dates, i.e. two replacements
 # return measurements between these two dates
-df = df[(df['MeasDate'] > felt_replacements[1]) & (df['MeasDate'] < felt_replacements[0])].reset_index(drop=True,inplace=False)
+df = df[(df['MeasDate'] > felt_replacements[1]) & \
+    (df['MeasDate'] < felt_replacements[0])]\
+        .reset_index(drop=True,inplace=False)
 
 print(df[['MeasDate','Speed']])
 
 # select samples
-samples = [df.iloc[4], df.iloc[-3]] #[df.iloc[-5], df.iloc[-3]]#[df.iloc[3], df.iloc[4]]#[df.iloc[4], df.iloc[-3]]
+samples = [df.iloc[4], df.iloc[-3]]
 # colors = ['g','r']
 # # create figure
 fig = plt.figure(figsize=(8,4))
@@ -84,10 +89,7 @@ for sample in samples:
         cutoff_high = 500
     index_cutoff_low = sum(xf<cutoff_low)
     index_cutoff_high = sum(xf<cutoff_high)
-    # print('index_cutoff =',index_cutoff)
-    # print('len(yf) =',len(abs_yf))
-    # print('max(abs_yf[:index_cutoff] =',max(abs_yf[:index_cutoff]))
-    amplitude_cutoff = max(abs_yf[index_cutoff_low:index_cutoff_high])/2
+    # amplitude_cutoff = max(abs_yf[index_cutoff_low:index_cutoff_high])/2
 
     plt.xlim(cutoff_low,cutoff_high)
     # plt.ylim(0,amplitude_cutoff)
@@ -109,7 +111,8 @@ else:
 plt.legend()
 plt.show()
 
-savename = nodename + "_Sp_" + freq_norm + str(round(cutoff_low,1)) + '-' + str(round(cutoff_high,1)) + "_" + \
+savename = nodename + "_Sp_" + freq_norm + str(round(cutoff_low,1)) + \
+    '-' + str(round(cutoff_high,1)) + "_" + \
     "_".join([sample.MeasDate.strftime("%y%m%d") for sample in samples])
 # print(savename)
 fig.savefig("../saved_plots/" + savename + ".pdf", bbox_inches='tight')
